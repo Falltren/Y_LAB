@@ -27,8 +27,4 @@ public class UserService {
         return user.getTrainings();
     }
 
-    public void deleteTraining() {
-
-    }
-
 }
