@@ -1,6 +1,7 @@
 package model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -9,6 +10,10 @@ public class Registration {
     private UserBase base;
 
     private Scanner scanner = new Scanner(System.in);
+
+    public Registration(UserBase base) {
+        this.base = base;
+    }
 
     public void register() {
         System.out.println("Введите ваше имя");
@@ -25,9 +30,10 @@ public class Registration {
             System.out.println("Введенные пароли не совпадают, повторите ввод");
             return;
         }
-        User user = new User(Role.USER, name, password, LocalDateTime.now());
-        user.setName(name);
+        User user = new User(Role.USER, name, password, LocalDateTime.now(), new ArrayList<>());
+        base.addUser(user);
     }
+
 
     private boolean checkPassword(String password, String confirmPassword) {
         return password.equals(confirmPassword);

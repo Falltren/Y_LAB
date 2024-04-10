@@ -1,17 +1,23 @@
 package model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Setter
 @Getter
-public abstract class Training {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Training {
 
-    private String name;
+    private TrainingType type;
 
     private LocalDate date;
+
+    private int duration;
 
     private int spentCalories;
 

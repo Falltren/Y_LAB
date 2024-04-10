@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -20,4 +21,6 @@ public class User {
     private String password;
 
     private LocalDateTime registration;
+
+    private List<Training> trainings;
 }

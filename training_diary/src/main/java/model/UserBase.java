@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public class UserBase {
 
-    private List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
 
     public void addUser(User user) {
         users.add(user);
@@ -20,5 +20,9 @@ public class UserBase {
         return users.stream()
                 .filter(u -> u.getName().equals(name))
                 .findFirst();
+    }
+
+    public List<User> getAllUser() {
+        return new ArrayList<>(users);
     }
 }
