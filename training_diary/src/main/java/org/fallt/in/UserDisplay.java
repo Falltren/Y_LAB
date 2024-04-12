@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Класс для взаимодействия пользователя с приложением
+ */
 public class UserDisplay {
 
     private UserBase userBase;
@@ -42,6 +45,9 @@ public class UserDisplay {
         this.isStop = false;
     }
 
+    /**
+     * Запуск главного меню приложения с возможностью зарегистрироваться, входа в систему и завершения работы приложения
+     */
     public void start() {
         while (!isStop) {
             System.out.println(Message.MAIN_MENU);
@@ -55,6 +61,9 @@ public class UserDisplay {
         }
     }
 
+    /**
+     * Ввод пользователем регистрационных данных
+     */
     private void register() {
         System.out.println("Введите ваше имя");
         String name = scanner.nextLine();
@@ -69,6 +78,9 @@ public class UserDisplay {
         registration.register(name, password, confirmPassword);
     }
 
+    /**
+     * Ввод пользователем учетных данных для входа в систему
+     */
     private void authentication() {
         System.out.println("Введите ваше имя");
         String name = scanner.nextLine();
@@ -85,6 +97,11 @@ public class UserDisplay {
         }
     }
 
+    /**
+     * Предоставлению аутентифицированному пользователю главного меню пользователя с возможностью добавления,
+     * удаления, редактирования тренировок, а также получения отчета по всем тренировкам и потраченным калориям в разрезе дней
+     * @param user Пользователь
+     */
     private void getUserMenu(User user) {
         while (true) {
             System.out.println(Message.USER_MENU);
@@ -103,6 +120,10 @@ public class UserDisplay {
         }
     }
 
+    /**
+     * Вывод на экран пользователя отчета по затраченным калориям по дням за указанный период времени
+     * @param user Пользователь
+     */
     private void printCaloriesReport(User user) {
         System.out.println("Введите дату начала периода в формате дд/мм/гггг");
         String dateFrom = scanner.nextLine();
@@ -121,6 +142,9 @@ public class UserDisplay {
         caloriesReport.forEach((key, value) -> System.out.println(key.format(DateTimeFormatter.ofPattern(DATE_PATTERN)) + " " + value + " кал" + "\n"));
     }
 
+    /**
+     * Вывод администратору основного меню с возможностью просмотра данных по тренировкам всех пользователей
+     */
     private void getAdminMenu() {
         while (true) {
             System.out.println(Message.ADMIN_MENU);
@@ -135,6 +159,10 @@ public class UserDisplay {
         }
     }
 
+    /**
+     * Вывод пользователю экрана редактирования тренировки, используется вспомогательный метод {@link #chooseEditFieldInTraining() chooseEditFieldInTraining}
+     * @param user Пользователь
+     */
     private void editTraining(User user) {
         if (!authentication.checkAuthenticate(user)) {
             System.out.println(Message.UNAUTHENTICATED_USER);
@@ -158,6 +186,10 @@ public class UserDisplay {
         trainingService.editTraining(user, trainingType, getDateFromString(date), editableData);
     }
 
+    /**
+     * Предоставление пользователю меню ввода данных новой тренировки
+     * @param user Пользователь
+     */
     private void inputTrainingData(User user) {
         if (!authentication.checkAuthenticate(user)) {
             System.out.println(Message.UNAUTHENTICATED_USER);
@@ -182,6 +214,10 @@ public class UserDisplay {
                 Integer.parseInt(spentCalories), description);
     }
 
+    /**
+     * Предоставлению пользователю меню удаления тренировки, поиск удаляемой тренировки осуществляется по дате и типу тренировки
+     * @param user
+     */
     private void deleteTraining(User user) {
         if (!authentication.checkAuthenticate(user)) {
             System.out.println(Message.UNAUTHENTICATED_USER);
@@ -204,6 +240,12 @@ public class UserDisplay {
         trainingService.deleteTraining(user, trainingType, getDateFromString(date));
     }
 
+    /**
+     * Вспомогательный метод проверки введенной пользователем даты,
+     * при некорректном вводе пользователь получит соответствующее уведомление в месте вызова метода
+     * @param input Дата в виде строки
+     * @return Результат проверки корректности введенной даты
+     */
     private boolean checkInputDate(String input) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(DATE_PATTERN);
         try {
@@ -214,11 +256,20 @@ public class UserDisplay {
         return true;
     }
 
+    /**
+     * Преобразует введенную пользователем строку в LocalDate
+     * @param date
+     * @return
+     */
     private LocalDate getDateFromString(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
         return LocalDate.parse(date, formatter);
     }
 
+    /**
+     * Вывод пользователю данных о тренировках
+     * @param trainings
+     */
     private void printTrainings(List<Training> trainings) {
         for (Training training : trainings) {
             System.out.println("Тренировка: " + "\n"
@@ -229,6 +280,10 @@ public class UserDisplay {
         }
     }
 
+    /**
+     * Получает отчет по тренировкам пользователя и формирует удобочитаемый вывод для пользователя
+     * @param trainings Список тренировок
+     */
     private void printAllTrainings(List<Training> trainings) {
         Map<LocalDate, List<Training>> report = Report.getUserReport(trainings);
         for (Map.Entry<LocalDate, List<Training>> entry : report.entrySet()) {
@@ -237,6 +292,9 @@ public class UserDisplay {
         }
     }
 
+    /**
+     * Метод предоставляет данные о всех тренировках пользователей, доступен только пользователям с ролью ADMIN
+     */
     private void printAllUserInfo() {
         List<User> users = userService.getAllUsers().stream()
                 .filter(u -> !u.getRole().equals(Role.ADMIN))
@@ -251,6 +309,10 @@ public class UserDisplay {
         }
     }
 
+    /**
+     * Метод для формирования Map, содержащей значения для корректировки информации о тренировке
+     * @return Map с обновленным значениям (value) и шифры полей экземпляра тренировки (key)
+     */
     private Map<String, String> chooseEditFieldInTraining() {
         Map<String, String> map = new HashMap<>();
         System.out.println(Message.EDIT_MENU);

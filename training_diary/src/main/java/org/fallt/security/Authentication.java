@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Аутентификация пользователя
+ */
 @RequiredArgsConstructor
 public class Authentication {
 
@@ -19,6 +22,12 @@ public class Authentication {
 
     private AuditWriter auditWriter = new AuditWriter();
 
+    /**
+     * Аутентификация пользователя, производится проверка наличия указанного пользователя и соответствующего ему пароля в хранилище
+     * @param name Имя пользователя
+     * @param password Пароль пользователя
+     * @return При успешной аутентификации возвращается пользователь их хранилища, иначе будет возвращен null
+     */
     public User login(String name, String password) {
         Optional<User> optionalUser = userService.getAllUsers().stream()
                 .filter(u -> u.getName().equals(name) && u.getPassword().equals(password))
@@ -34,6 +43,11 @@ public class Authentication {
         return authenticatedUser;
     }
 
+    /**
+     * Проверка наличия аутентификации у пользователя, в случае если пользователь не аутентифицирован, он получит соответствующее уведомление
+     * @param user Пользователь
+     * @return Результат наличия аутентификации у пользователя
+     */
     public boolean checkAuthenticate(User user) {
         return authenticatedUsers.contains(user);
     }

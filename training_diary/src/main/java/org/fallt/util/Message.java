@@ -1,5 +1,8 @@
 package org.fallt.util;
 
+/**
+ * Предоставляет информационные сообщения для пользователя
+ */
 public class Message {
 
     private Message() {

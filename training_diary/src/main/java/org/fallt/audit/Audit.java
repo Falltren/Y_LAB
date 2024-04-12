@@ -4,6 +4,10 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Аудит действий пользователя. Фиксирует информацию о регистрации, авторизации, добавлении новых пользователей в хранилище,
+ * а также добавление, удаление, редактирование тренировок
+ */
 @RequiredArgsConstructor
 public class Audit {
     private final String userName;
