@@ -35,8 +35,8 @@ public class UserDisplay {
     public UserDisplay() {
         this.userBase = new UserBase();
         this.scanner = new Scanner(System.in);
-        this.registration = new Registration(userBase);
         this.userService = new UserService(userBase);
+        this.registration = new Registration(userService);
         this.authentication = new Authentication(userService);
         this.trainingService = new TrainingService(userService);
         this.isStop = false;
@@ -56,11 +56,25 @@ public class UserDisplay {
     }
 
     private void register() {
-        registration.register();
+        System.out.println("Введите ваше имя");
+        String name = scanner.nextLine();
+        if (userService.getUserByName(name) != null) {
+            System.out.println("Пользователь с таким именем уже существует, введите новое имя");
+            return;
+        }
+        System.out.println("Введите пароль");
+        String password = scanner.nextLine();
+        System.out.println("Повторите пароль");
+        String confirmPassword = scanner.nextLine();
+        registration.register(name, password, confirmPassword);
     }
 
     private void authentication() {
-        User registerUser = authentication.login();
+        System.out.println("Введите ваше имя");
+        String name = scanner.nextLine();
+        System.out.println("Введите ваш пароль");
+        String password = scanner.nextLine();
+        User registerUser = authentication.login(name, password);
         if (registerUser == null) {
             return;
         }
@@ -80,12 +94,31 @@ public class UserDisplay {
                 case "2" -> deleteTraining(user);
                 case "3" -> editTraining(user);
                 case "4" -> printAllTrainings(user.getTrainings());
+                case "5" -> printCaloriesReport(user);
                 case "0" -> {
                     return;
                 }
                 default -> System.out.println(Message.INCORRECT_MENU_NUMBER);
             }
         }
+    }
+
+    private void printCaloriesReport(User user) {
+        System.out.println("Введите дату начала периода в формате дд/мм/гггг");
+        String dateFrom = scanner.nextLine();
+        if (!checkInputDate(dateFrom)) {
+            System.out.println();
+            return;
+        }
+        System.out.println("Введите дату окончания периода в формате дд/мм/гггг");
+        String dateTo = scanner.nextLine();
+        if (!checkInputDate(dateFrom)) {
+            System.out.println();
+            return;
+        }
+        List<Training> trainings = userService.getUserByName(user.getName()).getTrainings();
+        var caloriesReport = Report.getCaloriesReport(getDateFromString(dateFrom), getDateFromString(dateTo), trainings);
+        caloriesReport.forEach((key, value) -> System.out.println(key.format(DateTimeFormatter.ofPattern(DATE_PATTERN)) + " " + value + " кал" + "\n"));
     }
 
     private void getAdminMenu() {
@@ -102,14 +135,18 @@ public class UserDisplay {
         }
     }
 
-    private void editTraining(User registerUser) {
+    private void editTraining(User user) {
+        if (!authentication.checkAuthenticate(user)) {
+            System.out.println(Message.UNAUTHENTICATED_USER);
+            return;
+        }
         System.out.println("Введите дату тренировки, которую необходимо отредактировать в формате дд/мм/гггг");
         String date = scanner.nextLine();
         if (!checkInputDate(date)) {
-            System.out.println("Введена некорректная дата");
+            System.out.println(Message.INCORRECT_DATE);
             return;
         }
-        List<Training> trainings = trainingService.watchTrainings(registerUser, date);
+        List<Training> trainings = trainingService.watchTrainings(user, date);
         if (trainings.isEmpty()) {
             System.out.println("За указанную дату тренировки отсутствуют");
             return;
@@ -118,16 +155,20 @@ public class UserDisplay {
         System.out.println("Введите тип тренировки, которую необходимо отредактировать");
         String trainingType = scanner.nextLine();
         Map<String, String> editableData = chooseEditFieldInTraining();
-        trainingService.editTraining(registerUser, trainingType, getDateFromString(date), editableData);
+        trainingService.editTraining(user, trainingType, getDateFromString(date), editableData);
     }
 
     private void inputTrainingData(User user) {
+        if (!authentication.checkAuthenticate(user)) {
+            System.out.println(Message.UNAUTHENTICATED_USER);
+            return;
+        }
         System.out.println("Введите тип тренировки");
         String type = scanner.nextLine();
         System.out.println("Введите дату тренировки в формате дд/мм/гггг");
         String date = scanner.nextLine();
         if (!checkInputDate(date)) {
-            System.out.println("Введена некорректная дата");
+            System.out.println(Message.INCORRECT_DATE);
             return;
         }
         LocalDate trainingDate = getDateFromString(date);
@@ -141,14 +182,18 @@ public class UserDisplay {
                 Integer.parseInt(spentCalories), description);
     }
 
-    private void deleteTraining(User registerUser) {
+    private void deleteTraining(User user) {
+        if (!authentication.checkAuthenticate(user)) {
+            System.out.println(Message.UNAUTHENTICATED_USER);
+            return;
+        }
         System.out.println("Введите дату тренировки, которую необходимо удалить в формате дд/мм/гггг");
         String date = scanner.nextLine();
         if (!checkInputDate(date)) {
-            System.out.println("Введена некорректная дата");
+            System.out.println(Message.INCORRECT_DATE);
             return;
         }
-        List<Training> trainings = trainingService.watchTrainings(registerUser, date);
+        List<Training> trainings = trainingService.watchTrainings(user, date);
         if (trainings.isEmpty()) {
             System.out.println("За указанную дату тренировки отсутствуют");
             return;
@@ -156,7 +201,7 @@ public class UserDisplay {
         printTrainings(trainings);
         System.out.println("Введите тип тренировки, которую необходимо удалить");
         String trainingType = scanner.nextLine();
-        trainingService.deleteTraining(registerUser, trainingType, getDateFromString(date));
+        trainingService.deleteTraining(user, trainingType, getDateFromString(date));
     }
 
     private boolean checkInputDate(String input) {

@@ -4,6 +4,7 @@ import org.fallt.model.User;
 import org.fallt.repository.UserBase;
 
 import java.util.List;
+import java.util.Optional;
 
 public class UserService {
 
@@ -14,11 +15,15 @@ public class UserService {
     }
 
     public User getUserByName(String name) {
-        return userBase.getUserByName(name).orElseThrow();
+        return userBase.getUserByName(name).orElse(null);
     }
 
     public List<User> getAllUsers() {
         return userBase.getAllUser();
+    }
+
+    public void addUser(User user) {
+        userBase.addUser(user);
     }
 
 }

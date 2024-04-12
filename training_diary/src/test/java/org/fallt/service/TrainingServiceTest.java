@@ -118,12 +118,6 @@ class TrainingServiceTest {
         assertThat(actual).hasSize(2);
     }
 
-
-    private Training createTraining() {
-        TrainingType trainingType = new TrainingType("бег");
-        return new Training(trainingType, LocalDate.now(), 100, 300, "");
-    }
-
     private User createUser() {
         return new User(Role.USER, "John", "123", LocalDateTime.now(), new ArrayList<>());
     }

@@ -2,50 +2,31 @@ package org.fallt.security;
 
 import org.fallt.model.Role;
 import org.fallt.model.User;
-import org.fallt.repository.UserBase;
+import org.fallt.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Scanner;
 
 public class Registration {
 
-    private UserBase base;
+    private UserService userService;
 
-    private Scanner scanner = new Scanner(System.in);
-
-    public Registration(UserBase base) {
-        this.base = base;
-        base.addUser(new User(Role.ADMIN, "admin", "admin", LocalDateTime.now(), new ArrayList<>()));
+    public Registration(UserService userService) {
+        this.userService = userService;
+        userService.addUser(new User(Role.ADMIN, "admin", "admin", LocalDateTime.now(), new ArrayList<>()));
     }
 
-    public void register() {
-        System.out.println("Введите ваше имя");
-        String name = scanner.nextLine();
-        if (isExistedUser(name)) {
-            System.out.println("Пользователь с таким именем уже существует, введите новое имя");
-            return;
-        }
-        System.out.println("Введите пароль");
-        String password = scanner.nextLine();
-        System.out.println("Повторите пароль");
-        String confirmPassword = scanner.nextLine();
+    public void register(String name, String password, String confirmPassword) {
         if (!checkPassword(password, confirmPassword)) {
             System.out.println("Введенные пароли не совпадают, повторите ввод");
             return;
         }
         User user = new User(Role.USER, name, password, LocalDateTime.now(), new ArrayList<>());
-        base.addUser(user);
+        userService.addUser(user);
     }
-
 
     private boolean checkPassword(String password, String confirmPassword) {
         return password.equals(confirmPassword);
     }
 
-    private boolean isExistedUser(String name) {
-        Optional<User> optionalUser = base.getUserByName(name);
-        return optionalUser.isPresent();
-    }
 }
