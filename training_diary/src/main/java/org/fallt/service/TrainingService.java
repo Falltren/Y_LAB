@@ -1,5 +1,7 @@
 package org.fallt.service;
 
+import org.fallt.audit.Audit;
+import org.fallt.audit.AuditWriter;
 import org.fallt.model.Training;
 import org.fallt.model.TrainingType;
 import org.fallt.model.User;
@@ -15,8 +17,11 @@ public class TrainingService {
 
     private Set<TrainingType> types = new HashSet<>();
 
+    private AuditWriter auditWriter;
+
     public TrainingService(UserService userService) {
         this.userService = userService;
+        auditWriter = new AuditWriter();
     }
 
     public void addNewTrainingType(TrainingType type) {
@@ -33,9 +38,11 @@ public class TrainingService {
             return;
         }
         existedUser.getTrainings().add(training);
+        auditWriter.write(new Audit(user.getName(), "added new training"));
     }
 
     public List<Training> watchTrainings(User user) {
+        auditWriter.write(new Audit(user.getName(), "watch all trainings"));
         return user.getTrainings().stream()
                 .sorted(Comparator.comparing(Training::getDate).thenComparing(t -> t.getType().getType()))
                 .toList();
@@ -45,6 +52,7 @@ public class TrainingService {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate trainingDate = LocalDate.parse(inputDate, dateTimeFormatter);
         List<Training> trainings = watchTrainings(user);
+        auditWriter.write(new Audit(user.getName(), "watch training for day " + inputDate));
         return trainings.stream()
                 .filter(t -> t.getDate().isEqual(trainingDate))
                 .toList();
@@ -58,6 +66,7 @@ public class TrainingService {
             Training training = optionalTraining.get();
             changeTrainingValue(training, newValue);
         }
+        auditWriter.write(new Audit(user.getName(), "user edit training"));
     }
 
     public void deleteTraining(User user, String trainingType, LocalDate date) {
@@ -65,6 +74,7 @@ public class TrainingService {
                 .filter(t -> t.getDate().equals(date) && t.getType().getType().equals(trainingType))
                 .findFirst();
         training.ifPresent(value -> user.getTrainings().remove(value));
+        auditWriter.write(new Audit(user.getName(), "user delete training"));
     }
 
     private boolean checkSameTrainingFromDay(User user, Training training, LocalDate date) {

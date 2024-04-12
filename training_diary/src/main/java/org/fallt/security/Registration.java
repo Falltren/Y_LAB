@@ -1,5 +1,7 @@
 package org.fallt.security;
 
+import org.fallt.audit.Audit;
+import org.fallt.audit.AuditWriter;
 import org.fallt.model.Role;
 import org.fallt.model.User;
 import org.fallt.service.UserService;
@@ -11,8 +13,11 @@ public class Registration {
 
     private UserService userService;
 
+    private AuditWriter auditWriter;
+
     public Registration(UserService userService) {
         this.userService = userService;
+        auditWriter = new AuditWriter();
         userService.addUser(new User(Role.ADMIN, "admin", "admin", LocalDateTime.now(), new ArrayList<>()));
     }
 
@@ -23,6 +28,7 @@ public class Registration {
         }
         User user = new User(Role.USER, name, password, LocalDateTime.now(), new ArrayList<>());
         userService.addUser(user);
+        auditWriter.write(new Audit(name, "user registered"));
     }
 
     private boolean checkPassword(String password, String confirmPassword) {
