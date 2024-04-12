@@ -1,4 +1,8 @@
-package model;
+package org.fallt.security;
+
+import org.fallt.model.Role;
+import org.fallt.model.User;
+import org.fallt.repository.UserBase;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,6 +17,7 @@ public class Registration {
 
     public Registration(UserBase base) {
         this.base = base;
+        base.addUser(new User(Role.ADMIN, "admin", "admin", LocalDateTime.now(), new ArrayList<>()));
     }
 
     public void register() {

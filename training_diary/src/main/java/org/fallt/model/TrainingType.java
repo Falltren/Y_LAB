@@ -1,4 +1,4 @@
-package model;
+package org.fallt.model;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

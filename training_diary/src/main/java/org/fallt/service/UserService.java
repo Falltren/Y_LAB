@@ -1,15 +1,13 @@
-package model;
+package org.fallt.service;
 
-import lombok.Setter;
+import org.fallt.model.User;
+import org.fallt.repository.UserBase;
 
 import java.util.List;
 
 public class UserService {
 
     private UserBase userBase;
-
-    @Setter
-    private User currentUser;
 
     public UserService(UserBase userBase) {
         this.userBase = userBase;
@@ -21,10 +19,6 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userBase.getAllUser();
-    }
-
-    public List<Training> getTrainingStatistic(User user) {
-        return user.getTrainings();
     }
 
 }

@@ -1,4 +1,8 @@
-package model;
+package org.fallt.service;
+
+import org.fallt.model.Training;
+import org.fallt.model.TrainingType;
+import org.fallt.model.User;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -33,19 +37,8 @@ public class TrainingService {
 
     public List<Training> watchTrainings(User user) {
         return user.getTrainings().stream()
-                .sorted(Comparator.comparing(Training::getDate).reversed().thenComparing(t -> t.getType().getType()))
+                .sorted(Comparator.comparing(Training::getDate).thenComparing(t -> t.getType().getType()))
                 .toList();
-    }
-
-    public void editTraining(User user, Training training) {
-
-    }
-
-    public void deleteTraining(User user, String trainingType, LocalDate localDate) {
-        Optional<Training> training = userService.getUserByName(user.getName()).getTrainings().stream()
-                .filter(t -> t.getDate().equals(localDate) && t.getType().getType().equals(trainingType))
-                .findFirst();
-        training.ifPresent(value -> user.getTrainings().remove(value));
     }
 
     public List<Training> watchTrainings(User user, String inputDate) {
@@ -57,12 +50,42 @@ public class TrainingService {
                 .toList();
     }
 
+    public void editTraining(User user, String trainingType, LocalDate date, Map<String, String> newValue) {
+        Optional<Training> optionalTraining = userService.getUserByName(user.getName()).getTrainings().stream()
+                .filter(t -> t.getDate().equals(date) && t.getType().getType().equals(trainingType))
+                .findFirst();
+        if (optionalTraining.isPresent()) {
+            Training training = optionalTraining.get();
+            changeTrainingValue(training, newValue);
+        }
+    }
+
+    public void deleteTraining(User user, String trainingType, LocalDate date) {
+        Optional<Training> training = userService.getUserByName(user.getName()).getTrainings().stream()
+                .filter(t -> t.getDate().equals(date) && t.getType().getType().equals(trainingType))
+                .findFirst();
+        training.ifPresent(value -> user.getTrainings().remove(value));
+    }
+
     private boolean checkSameTrainingFromDay(User user, Training training, LocalDate date) {
         return user.getTrainings().stream()
                 .filter(t -> t.getDate().equals(date))
                 .anyMatch(t -> t.getType().equals(training.getType()));
-
     }
 
-
+    private void changeTrainingValue(Training training, Map<String, String> newValue) {
+        for (Map.Entry<String, String> entry : newValue.entrySet()) {
+            if (entry.getKey().equals("1")) {
+                training.setType(new TrainingType(entry.getValue()));
+            } else if (entry.getKey().equals("2")) {
+                training.setDate(LocalDate.parse(entry.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            } else if (entry.getKey().equals("3")) {
+                training.setDuration(Integer.parseInt(entry.getValue()));
+            } else if (entry.getKey().equals("4")) {
+                training.setSpentCalories(Integer.parseInt(entry.getValue()));
+            } else if (entry.getKey().equals("5")) {
+                training.setDescription(entry.getValue());
+            }
+        }
+    }
 }

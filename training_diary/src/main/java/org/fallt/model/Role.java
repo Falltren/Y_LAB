@@ -1,4 +1,4 @@
-package model;
+package org.fallt.model;
 
 public enum Role {
 

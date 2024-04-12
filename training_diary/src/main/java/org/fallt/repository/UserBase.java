@@ -1,4 +1,6 @@
-package model;
+package org.fallt.repository;
+
+import org.fallt.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +12,6 @@ public class UserBase {
 
     public void addUser(User user) {
         users.add(user);
-    }
-
-    public void deleteUser(User user) {
-        users.remove(user);
     }
 
     public Optional<User> getUserByName(String name) {
