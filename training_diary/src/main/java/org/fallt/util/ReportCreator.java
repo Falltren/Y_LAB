@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Создает отчеты для отправки пользователю
  */
-public final class Report {
+public final class ReportCreator {
 
-    private Report() {
+    private ReportCreator() {
     }
 
     /**

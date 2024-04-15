@@ -31,7 +31,7 @@ class AuthenticationTest {
     @DisplayName("Test login")
     void testLogin() {
         User user = new User(Role.USER, "John", "123", LocalDateTime.now(), new ArrayList<>());
-        when(userService.getAllUsers()).thenReturn(List.of(user));
+        when(userService.getUserByName("John")).thenReturn(user);
         String name = "John";
         String password = "123";
         User actual = authentication.login(name, password);

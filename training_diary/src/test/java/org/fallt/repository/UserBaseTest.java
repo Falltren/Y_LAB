@@ -13,27 +13,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UserBaseTest {
 
-    private UserBase userBase;
+    private UserRepository userRepository;
 
     @BeforeEach
     public void setUp() {
-        this.userBase = new UserBase();
+        this.userRepository = new UserRepository();
     }
 
     @Test
     @DisplayName("Test add user")
     void testAddUser() {
         User newUser = createUser();
-        userBase.addUser(newUser);
-        assertThat(userBase.getAllUser()).hasSize(1);
+        userRepository.addUser(newUser);
+        assertThat(userRepository.getAllUser()).hasSize(1);
     }
 
     @Test
     @DisplayName("Test get user by name")
     void testGetUserByName() {
         User expectedUser = createUser();
-        userBase.addUser(expectedUser);
-        User actualUser = userBase.getUserByName("John").orElseThrow();
+        userRepository.addUser(expectedUser);
+        User actualUser = userRepository.getUserByName("John").orElseThrow();
         assertThat(actualUser).isEqualTo(expectedUser);
     }
 

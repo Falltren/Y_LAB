@@ -3,13 +3,13 @@ package org.fallt.in;
 import org.fallt.model.Role;
 import org.fallt.model.Training;
 import org.fallt.model.User;
-import org.fallt.repository.UserBase;
+import org.fallt.repository.UserRepository;
 import org.fallt.security.Authentication;
 import org.fallt.security.Registration;
 import org.fallt.service.TrainingService;
 import org.fallt.service.UserService;
 import org.fallt.util.Message;
-import org.fallt.util.Report;
+import org.fallt.util.ReportCreator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +24,7 @@ import java.util.Scanner;
  */
 public class UserDisplay {
 
-    private UserBase userBase;
+    private UserRepository userRepository;
     private Scanner scanner;
     private Registration registration;
     private Authentication authentication;
@@ -36,9 +36,9 @@ public class UserDisplay {
     private static final String DATE_PATTERN = "dd/MM/yyyy";
 
     public UserDisplay() {
-        this.userBase = new UserBase();
+        this.userRepository = new UserRepository();
         this.scanner = new Scanner(System.in);
-        this.userService = new UserService(userBase);
+        this.userService = new UserService(userRepository);
         this.registration = new Registration(userService);
         this.authentication = new Authentication(userService);
         this.trainingService = new TrainingService(userService);
@@ -138,7 +138,7 @@ public class UserDisplay {
             return;
         }
         List<Training> trainings = userService.getUserByName(user.getName()).getTrainings();
-        var caloriesReport = Report.getCaloriesReport(getDateFromString(dateFrom), getDateFromString(dateTo), trainings);
+        var caloriesReport = ReportCreator.getCaloriesReport(getDateFromString(dateFrom), getDateFromString(dateTo), trainings);
         caloriesReport.forEach((key, value) -> System.out.println(key.format(DateTimeFormatter.ofPattern(DATE_PATTERN)) + " " + value + " кал" + "\n"));
     }
 
@@ -285,7 +285,7 @@ public class UserDisplay {
      * @param trainings Список тренировок
      */
     private void printAllTrainings(List<Training> trainings) {
-        Map<LocalDate, List<Training>> report = Report.getUserReport(trainings);
+        Map<LocalDate, List<Training>> report = ReportCreator.getUserReport(trainings);
         for (Map.Entry<LocalDate, List<Training>> entry : report.entrySet()) {
             System.out.println(entry.getKey().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
             printTrainings(entry.getValue());
@@ -299,7 +299,7 @@ public class UserDisplay {
         List<User> users = userService.getAllUsers().stream()
                 .filter(u -> !u.getRole().equals(Role.ADMIN))
                 .toList();
-        var report = Report.getFullReport(users);
+        var report = ReportCreator.getFullReport(users);
         for (Map.Entry<String, Map<LocalDate, List<Training>>> entry : report.entrySet()) {
             System.out.println(entry.getKey());
             for (Map.Entry<LocalDate, List<Training>> userInfo : entry.getValue().entrySet()) {

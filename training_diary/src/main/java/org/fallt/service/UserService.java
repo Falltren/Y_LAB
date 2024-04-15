@@ -3,8 +3,9 @@ package org.fallt.service;
 import org.fallt.audit.Audit;
 import org.fallt.audit.AuditWriter;
 import org.fallt.model.User;
-import org.fallt.repository.UserBase;
+import org.fallt.repository.UserRepository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -12,11 +13,11 @@ import java.util.List;
  */
 public class UserService {
 
-    private UserBase userBase;
+    private UserRepository userRepository;
     private AuditWriter auditWriter;
 
-    public UserService(UserBase userBase) {
-        this.userBase = userBase;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
         auditWriter = new AuditWriter();
     }
 
@@ -27,15 +28,15 @@ public class UserService {
      */
     public User getUserByName(String name) {
         auditWriter.write(new Audit(name, "get user"));
-        return userBase.getUserByName(name).orElse(null);
+        return userRepository.getUserByName(name).orElse(null);
     }
 
     /**
      * Возвращает список всех пользователей из хранилища
      * @return Список пользователей
      */
-    public List<User> getAllUsers() {
-        return userBase.getAllUser();
+    public Collection<User> getAllUsers() {
+        return userRepository.getAllUser();
     }
 
     /**
@@ -43,7 +44,7 @@ public class UserService {
      * @param user Новый пользователь
      */
     public void addUser(User user) {
-        userBase.addUser(user);
+        userRepository.addUser(user);
         auditWriter.write(new Audit(user.getName(), "save user"));
     }
 
