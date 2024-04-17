@@ -11,9 +11,10 @@ import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -37,7 +38,7 @@ class TrainingServiceTest {
         when(userService.getUserByName("John")).thenReturn(user);
         trainingService.addNewTraining(user, "бег", LocalDate.of(2023, 10, 20), 100, 300, "");
         assertThat(user.getTrainings()).hasSize(1);
-        Training training = user.getTrainings().get(0);
+        Training training = user.getTrainings().stream().findAny().get();
         assertThat(training.getDate()).isEqualTo(LocalDate.of(2023, 10, 20));
         assertThat(training.getDuration()).isEqualTo(100);
         assertThat(training.getSpentCalories()).isEqualTo(300);
@@ -62,7 +63,7 @@ class TrainingServiceTest {
         trainingService.addNewTraining(user, "кроссфит", LocalDate.of(2024, 3, 22), 60, 400, "");
         trainingService.addNewTraining(user, "бег", LocalDate.of(2023, 10, 15), 50, 300, "");
         trainingService.addNewTraining(user, "йога", LocalDate.of(2024, 2, 10), 120, 250, "");
-        List<Training> actual = trainingService.watchTrainings(user);
+        List<Training> actual = trainingService.getTrainings(user);
         assertThat(actual).hasSize(3);
         assertThat(actual.get(0).getDate()).isEqualTo(LocalDate.of(2023, 10, 15));
         assertThat(actual.get(1).getDate()).isEqualTo(LocalDate.of(2024, 2, 10));
@@ -77,7 +78,7 @@ class TrainingServiceTest {
         trainingService.addNewTraining(user, "кроссфит", LocalDate.of(2024, 3, 22), 60, 400, "");
         trainingService.addNewTraining(user, "бег", LocalDate.of(2023, 10, 15), 50, 300, "");
         trainingService.addNewTraining(user, "йога", LocalDate.of(2024, 2, 10), 120, 250, "");
-        List<Training> actual = trainingService.watchTrainings(user, "22/03/2024");
+        List<Training> actual = trainingService.getTrainings(user, "22/03/2024");
         assertThat(actual).hasSize(1);
         assertThat(actual.get(0).getDuration()).isEqualTo(60);
         assertThat(actual.get(0).getSpentCalories()).isEqualTo(400);
@@ -97,7 +98,7 @@ class TrainingServiceTest {
                 "4", "350",
                 "5", "Новое описание");
         trainingService.editTraining(user, "кроссфит", LocalDate.of(2024, 3, 22), newValues);
-        Training editedTraining = user.getTrainings().get(0);
+        Training editedTraining = user.getTrainings().stream().filter(t -> t.getType().getType().equals("бег")).findFirst().get();
         assertThat(editedTraining.getType()).isEqualTo(new TrainingType("бег"));
         assertThat(editedTraining.getDate()).isEqualTo(LocalDate.of(2024, 2, 15));
         assertThat(editedTraining.getDuration()).isEqualTo(120);
@@ -107,18 +108,18 @@ class TrainingServiceTest {
 
     @Test
     @DisplayName("Delete training")
-    void testDeleteTraining(){
+    void testDeleteTraining() {
         User user = createUser();
         when(userService.getUserByName("John")).thenReturn(user);
         trainingService.addNewTraining(user, "кроссфит", LocalDate.of(2024, 3, 22), 60, 400, "");
         trainingService.addNewTraining(user, "бег", LocalDate.of(2024, 3, 22), 50, 300, "");
         trainingService.addNewTraining(user, "йога", LocalDate.of(2024, 2, 10), 120, 250, "");
         trainingService.deleteTraining(user, "кроссфит", LocalDate.of(2024, 3, 22));
-        List<Training> actual = user.getTrainings();
+        Set<Training> actual = user.getTrainings();
         assertThat(actual).hasSize(2);
     }
 
     private User createUser() {
-        return new User(Role.USER, "John", "123", LocalDateTime.now(), new ArrayList<>());
+        return new User(Role.USER, "John", "123", LocalDateTime.now(), new HashSet<>());
     }
 }

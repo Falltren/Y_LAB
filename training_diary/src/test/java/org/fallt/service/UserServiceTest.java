@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,9 +42,9 @@ class UserServiceTest {
     @DisplayName("Get all users")
     void testGetAllUsers() {
         when(userRepository.getAllUser()).thenReturn(List.of(
-                new User(Role.USER, "Mike", "111", LocalDateTime.now(), new ArrayList<>()),
-                new User(Role.USER, "Tom", "222", LocalDateTime.now(), new ArrayList<>()),
-                new User(Role.USER, "Anna", "333", LocalDateTime.now(), new ArrayList<>())
+                new User(Role.USER, "Mike", "111", LocalDateTime.now(), new HashSet<>()),
+                new User(Role.USER, "Tom", "222", LocalDateTime.now(), new HashSet<>()),
+                new User(Role.USER, "Anna", "333", LocalDateTime.now(), new HashSet<>())
         ));
         Collection<User> actual = userService.getAllUsers();
         assertThat(actual).hasSize(3);
@@ -61,7 +61,6 @@ class UserServiceTest {
     }
 
     private User createUser() {
-//        List<String> name
-        return new User(Role.USER, "John", "123", LocalDateTime.now(), new ArrayList<>());
+        return new User(Role.USER, "John", "123", LocalDateTime.now(), new HashSet<>());
     }
 }

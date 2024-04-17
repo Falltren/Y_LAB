@@ -63,7 +63,7 @@ public class TrainingService {
      * @param user Пользователь
      * @return Список тренировок
      */
-    public List<Training> watchTrainings(User user) {
+    public List<Training> getTrainings(User user) {
         auditWriter.write(new Audit(user.getName(), "watch all trainings"));
         return user.getTrainings().stream()
                 .sorted(Comparator.comparing(Training::getDate).thenComparing(t -> t.getType().getType()))
@@ -76,10 +76,10 @@ public class TrainingService {
      * @param inputDate Дата в виде строки, проверка валидности передаваемой даты должны осуществляться до передачи в данный метод
      * @return Список тренировок
      */
-    public List<Training> watchTrainings(User user, String inputDate) {
+    public List<Training> getTrainings(User user, String inputDate) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate trainingDate = LocalDate.parse(inputDate, dateTimeFormatter);
-        List<Training> trainings = watchTrainings(user);
+        List<Training> trainings = getTrainings(user);
         auditWriter.write(new Audit(user.getName(), "watch training for day " + inputDate));
         return trainings.stream()
                 .filter(t -> t.getDate().isEqual(trainingDate))

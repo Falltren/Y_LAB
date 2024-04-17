@@ -8,10 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class UserBaseTest {
+class UserRepositoryTest {
 
     private UserRepository userRepository;
 
@@ -39,6 +40,6 @@ class UserBaseTest {
 
 
     private User createUser() {
-        return new User(Role.USER, "John", "123", LocalDateTime.now(), new ArrayList<>());
+        return new User(Role.USER, "John", "123", LocalDateTime.now(), new HashSet<>());
     }
 }

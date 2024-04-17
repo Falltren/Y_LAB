@@ -3,7 +3,7 @@ package org.fallt.model;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -20,5 +20,5 @@ public class User {
 
     private LocalDateTime registration;
 
-    private List<Training> trainings;
+    private Set<Training> trainings;
 }

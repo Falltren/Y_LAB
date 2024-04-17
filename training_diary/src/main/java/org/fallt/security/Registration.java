@@ -8,6 +8,7 @@ import org.fallt.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Регистрация нового пользователя, Один пользователь с ролью ADMIN добавляется автоматически
@@ -21,7 +22,7 @@ public class Registration {
     public Registration(UserService userService) {
         this.userService = userService;
         auditWriter = new AuditWriter();
-        userService.addUser(new User(Role.ADMIN, "admin", "admin", LocalDateTime.now(), new ArrayList<>()));
+        userService.addUser(new User(Role.ADMIN, "admin", "admin", LocalDateTime.now(), new HashSet<>()));
     }
 
     /**
@@ -37,7 +38,7 @@ public class Registration {
             System.out.println("Введенные пароли не совпадают, повторите ввод");
             return;
         }
-        User user = new User(Role.USER, name, password, LocalDateTime.now(), new ArrayList<>());
+        User user = new User(Role.USER, name, password, LocalDateTime.now(), new HashSet<>());
         userService.addUser(user);
         auditWriter.write(new Audit(name, "user registered"));
     }
