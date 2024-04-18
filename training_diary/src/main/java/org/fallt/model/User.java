@@ -12,6 +12,8 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"role", "registration", "trainings"})
 public class User {
 
+    private Long id;
+
     private Role role;
 
     private String name;

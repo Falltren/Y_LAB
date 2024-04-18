@@ -8,10 +8,16 @@ import org.fallt.security.Authentication;
 import org.fallt.security.Registration;
 import org.fallt.service.TrainingService;
 import org.fallt.service.UserService;
+import org.fallt.util.LiquibaseRunner;
+import org.fallt.util.PropertiesReader;
+
+import java.io.IOException;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        LiquibaseRunner liquibaseRunner = new LiquibaseRunner(new PropertiesReader().getProperties());
+        liquibaseRunner.run();
         UserInput userInput = new UserInput();
         UserRepository userRepository = new UserRepository();
         UserService userService = new UserService(userRepository);

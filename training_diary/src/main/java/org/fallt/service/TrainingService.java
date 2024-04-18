@@ -48,7 +48,7 @@ public class TrainingService {
     public void addNewTraining(User user, String type, LocalDate date, int duration, int spentCalories, String description) {
         TrainingType trainingType = new TrainingType(type.toLowerCase());
         addNewTrainingType(trainingType);
-        Training training = new Training(trainingType, date, duration, spentCalories, description);
+        Training training = new Training(1L, trainingType, date, duration, spentCalories, description);
         User existedUser = userService.getUserByName(user.getName());
         if (checkSameTrainingFromDay(user, training, date)) {
             System.out.println(MessageFormat.format("Вы уже добавляли данный тип тренировок: {0} в указанную дату", trainingType));

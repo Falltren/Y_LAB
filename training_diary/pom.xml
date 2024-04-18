@@ -16,9 +16,23 @@
         <mockito.version>5.3.1</mockito.version>
         <assertj.version>3.22.0</assertj.version>
         <junit.version>5.9.3</junit.version>
+        <postgres.version>42.6.2</postgres.version>
+        <liquibase.version>4.26.0</liquibase.version>
+<!--        <profile.propertyFile>src/main/resources/db.properties</profile.propertyFile>-->
+<!--        <profile.changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</profile.changeLogFile>-->
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

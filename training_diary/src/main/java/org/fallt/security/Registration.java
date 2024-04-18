@@ -22,7 +22,7 @@ public class Registration {
     public Registration(UserService userService) {
         this.userService = userService;
         auditWriter = new AuditWriter();
-        userService.addUser(new User(Role.ADMIN, "admin", "admin", LocalDateTime.now(), new HashSet<>()));
+        userService.addUser(new User(1L, Role.ADMIN, "admin", "admin", LocalDateTime.now(), new HashSet<>()));
     }
 
     /**
@@ -38,7 +38,7 @@ public class Registration {
             System.out.println("Введенные пароли не совпадают, повторите ввод");
             return;
         }
-        User user = new User(Role.USER, name, password, LocalDateTime.now(), new HashSet<>());
+        User user = new User(1L, Role.USER, name, password, LocalDateTime.now(), new HashSet<>());
         userService.addUser(user);
         auditWriter.write(new Audit(name, "user registered"));
     }

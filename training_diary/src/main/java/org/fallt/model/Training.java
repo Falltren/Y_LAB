@@ -11,6 +11,8 @@ import java.time.LocalDate;
 @ToString
 public class Training {
 
+    private Long id;
+
     private TrainingType type;
 
     private LocalDate date;
