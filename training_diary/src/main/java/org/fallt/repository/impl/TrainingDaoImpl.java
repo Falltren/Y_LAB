@@ -23,7 +23,7 @@ public class TrainingDaoImpl implements TrainingDao {
     @Override
     public void save(Training training) {
         String sql = "INSERT INTO trainings (id, training_type_id, date, duration, spent_calories, description, user_id)" +
-                " VALUES (? ? ? ? ? ? ?)";
+                " VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             Long id = getId();
             preparedStatement.setLong(1, id);

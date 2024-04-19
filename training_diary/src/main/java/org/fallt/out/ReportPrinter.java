@@ -29,7 +29,7 @@ public class ReportPrinter {
      */
     public void printAllUserInfo() {
         List<User> users = userService.getAllUsers().stream()
-                .filter(u -> !u.getRole().equals(Role.ADMIN))
+                .filter(u -> !u.getRole().equals(Role.ROLE_ADMIN))
                 .toList();
         var report = ReportCreator.getFullReport(users);
         for (Map.Entry<String, Map<LocalDate, List<Training>>> entry : report.entrySet()) {

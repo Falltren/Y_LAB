@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -31,7 +30,7 @@ class AuthenticationTest {
     @Test
     @DisplayName("Test login")
     void testLogin() {
-        User user = new User(Role.USER, "John", "123", LocalDateTime.now(), new HashSet<>());
+        User user = new User(Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
         when(userService.getUserByName("John")).thenReturn(user);
         String name = "John";
         String password = "123";
@@ -42,7 +41,7 @@ class AuthenticationTest {
     @Test
     @DisplayName("Test login with incorrect password")
     void testLoginWithWrongData() {
-        User user = new User(Role.USER, "John", "123", LocalDateTime.now(), new HashSet<>());
+        User user = new User(Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
         when(userService.getAllUsers()).thenReturn(List.of(user));
         String name = "John";
         String password = "222";

@@ -4,6 +4,7 @@ import org.fallt.model.Role;
 import org.fallt.model.Training;
 import org.fallt.model.TrainingType;
 import org.fallt.model.User;
+import org.fallt.repository.TrainingDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,10 +26,13 @@ class TrainingServiceTest {
 
     private UserService userService;
 
+    private TrainingDao trainingDao;
+
     @BeforeEach
     public void setUp() {
         userService = Mockito.mock(UserService.class);
-        trainingService = new TrainingService(userService);
+        trainingDao = Mockito.mock(TrainingDao.class);
+        trainingService = new TrainingService(userService, trainingDao);
     }
 
     @Test
@@ -99,7 +103,7 @@ class TrainingServiceTest {
                 "5", "Новое описание");
         trainingService.editTraining(user, "кроссфит", LocalDate.of(2024, 3, 22), newValues);
         Training editedTraining = user.getTrainings().stream().filter(t -> t.getType().getType().equals("бег")).findFirst().get();
-        assertThat(editedTraining.getType()).isEqualTo(new TrainingType("бег"));
+        assertThat(editedTraining.getType()).isEqualTo(new TrainingType(1, "бег"));
         assertThat(editedTraining.getDate()).isEqualTo(LocalDate.of(2024, 2, 15));
         assertThat(editedTraining.getDuration()).isEqualTo(120);
         assertThat(editedTraining.getSpentCalories()).isEqualTo(350);
@@ -120,6 +124,6 @@ class TrainingServiceTest {
     }
 
     private User createUser() {
-        return new User(Role.USER, "John", "123", LocalDateTime.now(), new HashSet<>());
+        return new User(1L, Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
     }
 }

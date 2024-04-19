@@ -5,6 +5,7 @@ import org.fallt.audit.AuditWriter;
 import org.fallt.model.Training;
 import org.fallt.model.TrainingType;
 import org.fallt.model.User;
+import org.fallt.repository.TrainingDao;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -18,12 +19,15 @@ public class TrainingService {
 
     private UserService userService;
 
+    private TrainingDao trainingDao;
+
     private Set<TrainingType> types = new HashSet<>();
 
     private AuditWriter auditWriter;
 
-    public TrainingService(UserService userService) {
+    public TrainingService(UserService userService, TrainingDao trainingDao) {
         this.userService = userService;
+        this.trainingDao = trainingDao;
         auditWriter = new AuditWriter();
     }
 

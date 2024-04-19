@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface UserDao {
 
-    void create(User user) throws SQLException;
+    void create(User user);
 
     Optional<User> getUserByName(String name);
 

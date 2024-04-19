@@ -64,7 +64,7 @@ public class UserMenu {
         if (registerUser == null) {
             return;
         }
-        if (registerUser.getRole().equals(Role.ADMIN)) {
+        if (registerUser.getRole().equals(Role.ROLE_ADMIN)) {
             getAdminMenu();
         } else {
             getUserMenu(registerUser);

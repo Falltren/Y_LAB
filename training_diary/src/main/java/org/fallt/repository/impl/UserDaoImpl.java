@@ -20,7 +20,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void create(User user) {
-        String sql = "INSERT INTO users (id, role, name, registration, password) VALUES (? ? ? ? ?)";
+        String sql = "INSERT INTO my_schema.users (id, role, name, registration, password) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             Long id = getId();
             preparedStatement.setLong(1, id);
@@ -29,6 +29,7 @@ public class UserDaoImpl implements UserDao {
             preparedStatement.setObject(4, user.getRegistration());
             preparedStatement.setString(5, user.getPassword());
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
         }
@@ -36,8 +37,8 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> getUserByName(String name) {
-        String sql = "SELECT *  FROM users u JOIN trainings tr ON tr.user_id = u.id" +
-                " JOIN training_type tt ON tr.training_type = tt.id WHERE name = ?";
+        String sql = "SELECT * FROM my_schema.users u LEFT JOIN my_schema.trainings tr ON tr.user_id = u.id" +
+                " LEFT JOIN my_schema.training_type tt ON tr.training_type_id = tt.id WHERE name = ?";
         Set<Training> trainings = new HashSet<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, name);
@@ -59,7 +60,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT * FROM my_schema.users";
         try (Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
@@ -73,7 +74,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     private Long getId() throws SQLException {
-        String sql = "SELECT nextval('users_id_seq')";
+        String sql = "SELECT nextval('my_schema.users_id_seq')";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -88,7 +89,7 @@ public class UserDaoImpl implements UserDao {
         user.setId(resultSet.getLong("id"));
         user.setRole(Role.valueOf(resultSet.getString("role")));
         user.setName(resultSet.getString("name"));
-        user.setRegistration(resultSet.getObject("date", LocalDateTime.class));
+        user.setRegistration(resultSet.getObject("registration", LocalDateTime.class));
         user.setPassword(resultSet.getString("password"));
         return user;
     }
@@ -96,14 +97,14 @@ public class UserDaoImpl implements UserDao {
     private Training instantiateTraining(ResultSet resultSet) throws SQLException {
         Training training = new Training();
         TrainingType trainingType = new TrainingType();
-        trainingType.setId(resultSet.getInt("tt.id"));
-        trainingType.setType(resultSet.getString("tt.type"));
-        training.setId(resultSet.getLong("tr.id"));
+        trainingType.setId(resultSet.getInt(12));
+        trainingType.setType(resultSet.getString(13));
+        training.setId(resultSet.getLong(5));
         training.setType(trainingType);
-        training.setDate(resultSet.getObject("tr.date", LocalDate.class));
-        training.setDuration(resultSet.getInt("tr.duration"));
-        training.setSpentCalories(resultSet.getInt("tr.spent_calories"));
-        training.setDescription(resultSet.getString("tr.description"));
+        training.setDate(resultSet.getObject(7, LocalDate.class));
+        training.setDuration(resultSet.getInt(8));
+        training.setSpentCalories(resultSet.getInt(9));
+        training.setDescription(resultSet.getString(10));
         return training;
     }
 }
