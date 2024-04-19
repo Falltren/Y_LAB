@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd"
+                   logicalFilePath="db/changelog/changelog-master.xml">
+    <changeSet id="001-create-table" author="fallt">
+        <sql endDelimiter=";">
+            CREATE SCHEMA my_schema
+        </sql>
+
+        <createTable schemaName="my_schema"
+                     tableName="users">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="registration" type="TIMESTAMP(6) WITHOUT TIMEZONE"/>
+            <column name="password" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createSequence schemaName="my_schema"
+                        sequenceName="users_id_seq"
+                        startValue="1"
+                        incrementBy="1"
+                        cacheSize="1"/>
+
+        <createTable schemaName="my_schema"
+                     tableName="training_type">
+            <column name="id" type="INT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createSequence schemaName="my_schema"
+                        sequenceName="training_type_id_seq"
+                        startValue="1"
+                        incrementBy="1"
+                        cacheSize="1"/>
+
+        <createTable schemaName="my_schema"
+                     tableName="trainings">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="training_type_id" type="INT"/>
+            <column name="date" type="TIMESTAMP(6) WITHOUT TIMEZONE"/>
+            <column name="duration" type="INT"/>
+            <column name="spent_calories" type="INT"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+
+        <createSequence schemaName="my_schema"
+                        sequenceName="trainings_id_seq"
+                        startValue="1"
+                        incrementBy="1"
+                        cacheSize="1"/>
+
+        <addForeignKeyConstraint baseTableSchemaName="my_schema"
+                                 baseTableName="trainings"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_training_user"
+                                 referencedTableSchemaName="my_schema"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableSchemaName="my_schema"
+                                 baseTableName="trainings"
+                                 baseColumnNames="training_type_id"
+                                 constraintName="fk_training_type"
+                                 referencedTableSchemaName="my_schema"
+                                 referencedTableName="training_type"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>
