@@ -14,30 +14,18 @@ import java.util.Properties;
 
 public class LiquibaseRunner {
 
-    private final Properties properties;
-
-    public LiquibaseRunner(Properties properties) {
-        this.properties = properties;
-    }
 
     public void run() {
         try {
-            Connection connection = getConnection();
+            Connection connection = DBUtils.getConnection();
             Database database =
                     DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
             Liquibase liquibase =
                     new Liquibase("db/changelog/db.changelog-master.xml", new ClassLoaderResourceAccessor(), database);
             liquibase.update();
             System.out.println("Migration is completed successfully");
-        } catch (SQLException | LiquibaseException e) {
+        } catch (LiquibaseException e) {
             System.out.println("SQL Exception in migration " + e.getMessage());
         }
-    }
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(
-                properties.getProperty("url"),
-                properties.getProperty("username"),
-                properties.getProperty("password"));
     }
 }

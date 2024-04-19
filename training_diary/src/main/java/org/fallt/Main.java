@@ -1,22 +1,19 @@
 package org.fallt;
 
 import org.fallt.in.UserInput;
-import org.fallt.service.UserMenu;
 import org.fallt.out.ReportPrinter;
 import org.fallt.repository.UserRepository;
 import org.fallt.security.Authentication;
 import org.fallt.security.Registration;
 import org.fallt.service.TrainingService;
+import org.fallt.service.UserMenu;
 import org.fallt.service.UserService;
 import org.fallt.util.LiquibaseRunner;
-import org.fallt.util.PropertiesReader;
-
-import java.io.IOException;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
-        LiquibaseRunner liquibaseRunner = new LiquibaseRunner(new PropertiesReader().getProperties());
+    public static void main(String[] args) {
+        LiquibaseRunner liquibaseRunner = new LiquibaseRunner();
         liquibaseRunner.run();
         UserInput userInput = new UserInput();
         UserRepository userRepository = new UserRepository();

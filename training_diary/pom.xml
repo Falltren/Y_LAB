@@ -18,8 +18,7 @@
         <junit.version>5.9.3</junit.version>
         <postgres.version>42.6.2</postgres.version>
         <liquibase.version>4.26.0</liquibase.version>
-<!--        <profile.propertyFile>src/main/resources/db.properties</profile.propertyFile>-->
-<!--        <profile.changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</profile.changeLogFile>-->
+        <liquibase.liquibaseSchemaName>service_schema</liquibase.liquibaseSchemaName>
     </properties>
 
     <dependencies>

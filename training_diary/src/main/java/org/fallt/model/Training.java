@@ -23,4 +23,6 @@ public class Training {
 
     private String description;
 
+    private User user;
+
 }

@@ -2,22 +2,16 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   logicalFilePath="db/changelog/changelog-master.xml">
 
-    <changeSet id="2" author="fallt">
-        <insert tableName="roles" schemaName="my_schema">
-            <column name="id" value="1"/>
-            <column name="role" value="ADMIN"/>
-        </insert>
-
+    <changeSet id="002-insert-admin-account" author="fallt">
         <insert tableName="users" schemaName="my_schema">
             <column name="id" value="1"/>
-            <column name="role_id" value="1"/>
-            <column name="registration" value="2022-01-30 00:00:00.628952"/>
+            <column name="role" value="ADMIN"/>
+            <column name="registration" value="2022-01-30 00:00:00.000000"/>
             <column name="name" value="admin"/>
             <column name="password" value="admin"/>
         </insert>
-
-
     </changeSet>
 </databaseChangeLog>

@@ -29,6 +29,7 @@ public class TrainingService {
 
     /**
      * Добавляет новый тип тренировки
+     *
      * @param type Новый тип тренировки
      */
     public void addNewTrainingType(TrainingType type) {
@@ -38,17 +39,18 @@ public class TrainingService {
     /**
      * Добавляет новую тренировку пользователя. Если тренировка данного вида уже добавлялась в указанную дату,
      * новая тренировка добавлена не будет
-     * @param user Пользователь
-     * @param type Тип тренировки
-     * @param date Дата тренировки
-     * @param duration Продолжительность тренировки в минутах
+     *
+     * @param user          Пользователь
+     * @param type          Тип тренировки
+     * @param date          Дата тренировки
+     * @param duration      Продолжительность тренировки в минутах
      * @param spentCalories Количество потраченных калорий
-     * @param description Описание тренировки
+     * @param description   Описание тренировки
      */
     public void addNewTraining(User user, String type, LocalDate date, int duration, int spentCalories, String description) {
-        TrainingType trainingType = new TrainingType(type.toLowerCase());
+        TrainingType trainingType = new TrainingType(1, type.toLowerCase());
         addNewTrainingType(trainingType);
-        Training training = new Training(1L, trainingType, date, duration, spentCalories, description);
+        Training training = new Training(1L, trainingType, date, duration, spentCalories, description, user);
         User existedUser = userService.getUserByName(user.getName());
         if (checkSameTrainingFromDay(user, training, date)) {
             System.out.println(MessageFormat.format("Вы уже добавляли данный тип тренировок: {0} в указанную дату", trainingType));
@@ -60,6 +62,7 @@ public class TrainingService {
 
     /**
      * Просмотр данных о тренировках пользователя
+     *
      * @param user Пользователь
      * @return Список тренировок
      */
@@ -72,7 +75,8 @@ public class TrainingService {
 
     /**
      * Просмотр данных о тренировках пользователя за определенный день
-     * @param user Пользователь
+     *
+     * @param user      Пользователь
      * @param inputDate Дата в виде строки, проверка валидности передаваемой даты должны осуществляться до передачи в данный метод
      * @return Список тренировок
      */
@@ -88,10 +92,11 @@ public class TrainingService {
 
     /**
      * Редактирование тренировки пользователя
-     * @param user Пользователь
+     *
+     * @param user         Пользователь
      * @param trainingType Тип тренировки
-     * @param date Дата тренировки
-     * @param newValue Map с новыми значениями параметров тренировки
+     * @param date         Дата тренировки
+     * @param newValue     Map с новыми значениями параметров тренировки
      */
     public void editTraining(User user, String trainingType, LocalDate date, Map<String, String> newValue) {
         Optional<Training> optionalTraining = userService.getUserByName(user.getName()).getTrainings().stream()
@@ -106,9 +111,10 @@ public class TrainingService {
 
     /**
      * Удаление тренировки
-     * @param user Пользователь
+     *
+     * @param user         Пользователь
      * @param trainingType Тип тренировки
-     * @param date Дата тренировки
+     * @param date         Дата тренировки
      */
     public void deleteTraining(User user, String trainingType, LocalDate date) {
         Optional<Training> training = userService.getUserByName(user.getName()).getTrainings().stream()
@@ -120,9 +126,10 @@ public class TrainingService {
 
     /**
      * Вспомогательный метод, используется для проверки наличия тренировки идентичного типа за указанный день
-     * @param user Пользователь
+     *
+     * @param user     Пользователь
      * @param training Тренировка
-     * @param date Дата тренировки
+     * @param date     Дата тренировки
      * @return Наличие или отсутствие тренировки такого же типа у пользователя за указанный день
      */
     private boolean checkSameTrainingFromDay(User user, Training training, LocalDate date) {
@@ -133,13 +140,14 @@ public class TrainingService {
 
     /**
      * Вспомогательный метод сопоставления новых значений и полей экземпляра тренировки
+     *
      * @param training Тренировка
      * @param newValue Map с новыми значения полей экземпляра тренировки
      */
     private void changeTrainingValue(Training training, Map<String, String> newValue) {
         for (Map.Entry<String, String> entry : newValue.entrySet()) {
             if (entry.getKey().equals("1")) {
-                training.setType(new TrainingType(entry.getValue()));
+                training.setType(new TrainingType(1, entry.getValue()));
             } else if (entry.getKey().equals("2")) {
                 training.setDate(LocalDate.parse(entry.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             } else if (entry.getKey().equals("3")) {
