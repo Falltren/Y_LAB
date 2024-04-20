@@ -1,10 +1,11 @@
 package org.fallt.repository.impl;
 
 import lombok.AllArgsConstructor;
-import org.fallt.exception.DbException;
+import org.fallt.exception.DBException;
 import org.fallt.model.Training;
 import org.fallt.model.TrainingType;
 import org.fallt.repository.TrainingDao;
+import org.fallt.util.DBUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +37,7 @@ public class TrainingDaoImpl implements TrainingDao {
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
     }
 
@@ -54,7 +55,7 @@ public class TrainingDaoImpl implements TrainingDao {
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
     }
 
@@ -66,7 +67,7 @@ public class TrainingDaoImpl implements TrainingDao {
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
     }
 
@@ -74,17 +75,20 @@ public class TrainingDaoImpl implements TrainingDao {
     public Optional<Training> findTrainingById(Long id, String trainingType, LocalDate date) {
         String sql = "SELECT * FROM my_schema.trainings tr LEFT JOIN my_schema.training_type tt ON tr.training_type_id = tt.id" +
                 " WHERE tr.user_id = ? AND tt.type = ? AND tr.date = ?";
+        ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
             preparedStatement.setString(2, trainingType);
             preparedStatement.setObject(3, date);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 Training training = instantiateTraining(resultSet);
                 return Optional.of(training);
             }
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
+        } finally {
+            DBUtils.closeResultSet(resultSet);
         }
         return Optional.empty();
     }
@@ -101,8 +105,9 @@ public class TrainingDaoImpl implements TrainingDao {
                 Training training = instantiateTraining(resultSet);
                 trainings.add(training);
             }
+            DBUtils.closeResultSet(resultSet);
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
         return trainings;
     }
@@ -120,19 +125,23 @@ public class TrainingDaoImpl implements TrainingDao {
                 Training training = instantiateTraining(resultSet);
                 trainings.add(training);
             }
+            DBUtils.closeResultSet(resultSet);
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
         return trainings;
     }
 
     private Long getId() throws SQLException {
         String sql = "SELECT nextval('my_schema.trainings_id_seq')";
+        ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getLong(1);
             }
+        } finally {
+            DBUtils.closeResultSet(resultSet);
         }
         throw new SQLException("Unable to retrieve value from sequence trainings_id_seq");
     }

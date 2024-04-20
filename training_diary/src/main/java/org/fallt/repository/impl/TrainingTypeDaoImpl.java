@@ -1,7 +1,7 @@
 package org.fallt.repository.impl;
 
 import lombok.AllArgsConstructor;
-import org.fallt.exception.DbException;
+import org.fallt.exception.DBException;
 import org.fallt.model.TrainingType;
 import org.fallt.repository.TrainingTypeDao;
 
@@ -27,7 +27,7 @@ public class TrainingTypeDaoImpl implements TrainingTypeDao {
             connection.commit();
             trainingType.setId(id);
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
         return trainingType;
     }
@@ -41,9 +41,8 @@ public class TrainingTypeDaoImpl implements TrainingTypeDao {
             if (resultSet.next()) {
                 return Optional.of(instantiateTrainingType(resultSet));
             }
-
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
         return Optional.empty();
     }

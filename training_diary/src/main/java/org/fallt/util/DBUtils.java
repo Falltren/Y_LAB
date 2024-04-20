@@ -1,6 +1,6 @@
 package org.fallt.util;
 
-import org.fallt.exception.DbException;
+import org.fallt.exception.DBException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +23,7 @@ public class DBUtils {
                 connection = DriverManager.getConnection(url, user, password);
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
-                throw new DbException(e.getMessage());
+                throw new DBException(e.getMessage());
             }
         }
         return connection;
@@ -34,7 +34,7 @@ public class DBUtils {
             try {
                 connection.close();
             } catch (SQLException e) {
-                throw new DbException(e.getMessage());
+                throw new DBException(e.getMessage());
             }
         }
     }
@@ -45,7 +45,7 @@ public class DBUtils {
             properties.load(inputStream);
             return properties;
         } catch (IOException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
     }
 
@@ -54,7 +54,7 @@ public class DBUtils {
             try {
                 st.close();
             } catch (SQLException e) {
-                throw new DbException(e.getMessage());
+                throw new DBException(e.getMessage());
             }
         }
     }
@@ -64,7 +64,7 @@ public class DBUtils {
             try {
                 rs.close();
             } catch (SQLException e) {
-                throw new DbException(e.getMessage());
+                throw new DBException(e.getMessage());
             }
         }
     }

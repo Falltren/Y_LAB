@@ -1,12 +1,13 @@
 package org.fallt.repository.impl;
 
 import lombok.AllArgsConstructor;
-import org.fallt.exception.DbException;
+import org.fallt.exception.DBException;
 import org.fallt.model.Role;
 import org.fallt.model.Training;
 import org.fallt.model.TrainingType;
 import org.fallt.model.User;
 import org.fallt.repository.UserDao;
+import org.fallt.util.DBUtils;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ public class UserDaoImpl implements UserDao {
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
     }
 
@@ -51,9 +52,10 @@ public class UserDaoImpl implements UserDao {
                 trainings.add(training);
                 user.setTrainings(trainings);
             }
+            DBUtils.closeResultSet(resultSet);
             return Optional.ofNullable(user);
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
     }
 
@@ -67,8 +69,9 @@ public class UserDaoImpl implements UserDao {
                 User user = instantiateUser(resultSet);
                 users.add(user);
             }
+            DBUtils.closeResultSet(resultSet);
         } catch (SQLException e) {
-            throw new DbException(e.getMessage());
+            throw new DBException(e.getMessage());
         }
         return users;
     }
