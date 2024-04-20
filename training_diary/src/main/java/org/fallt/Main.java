@@ -3,8 +3,8 @@ package org.fallt;
 import org.fallt.in.UserInput;
 import org.fallt.out.ReportPrinter;
 import org.fallt.repository.UserDao;
-import org.fallt.repository.UserRepository;
 import org.fallt.repository.impl.TrainingDaoImpl;
+import org.fallt.repository.impl.TrainingTypeDaoImpl;
 import org.fallt.repository.impl.UserDaoImpl;
 import org.fallt.security.Authentication;
 import org.fallt.security.Registration;
@@ -24,8 +24,8 @@ public class Main {
         UserService userService = new UserService(userDao);
         Registration registration = new Registration(userService);
         Authentication authentication = new Authentication(userService);
-        TrainingService trainingService = new TrainingService(userService, new TrainingDaoImpl(DBUtils.getConnection()));
-        ReportPrinter reportPrinter = new ReportPrinter(userService);
+        TrainingService trainingService = new TrainingService(new TrainingDaoImpl(DBUtils.getConnection()), new TrainingTypeDaoImpl(DBUtils.getConnection()));
+        ReportPrinter reportPrinter = new ReportPrinter(userService, trainingService);
         UserMenu userMenu = new UserMenu(userInput, userService, registration, authentication, trainingService, reportPrinter);
         userMenu.start();
     }

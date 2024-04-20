@@ -39,6 +39,6 @@ class UserRepositoryTest {
 
 
     private User createUser() {
-        return new User(Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
+        return new User(1L, Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
     }
 }

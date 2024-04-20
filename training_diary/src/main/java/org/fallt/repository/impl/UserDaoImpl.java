@@ -97,14 +97,14 @@ public class UserDaoImpl implements UserDao {
     private Training instantiateTraining(ResultSet resultSet) throws SQLException {
         Training training = new Training();
         TrainingType trainingType = new TrainingType();
-        trainingType.setId(resultSet.getInt(12));
-        trainingType.setType(resultSet.getString(13));
-        training.setId(resultSet.getLong(5));
+        trainingType.setId(resultSet.getInt(13));
+        trainingType.setType(resultSet.getString(14));
+        training.setId(resultSet.getLong(6));
         training.setType(trainingType);
-        training.setDate(resultSet.getObject(7, LocalDate.class));
-        training.setDuration(resultSet.getInt(8));
-        training.setSpentCalories(resultSet.getInt(9));
-        training.setDescription(resultSet.getString(10));
+        training.setDate(resultSet.getObject(8, LocalDate.class));
+        training.setDuration(resultSet.getInt(9));
+        training.setSpentCalories(resultSet.getInt(10));
+        training.setDescription(resultSet.getString(11));
         return training;
     }
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.fallt.model.Role;
 import org.fallt.model.Training;
 import org.fallt.model.User;
+import org.fallt.service.TrainingService;
 import org.fallt.service.UserService;
 import org.fallt.util.DateHandler;
 import org.fallt.util.ReportCreator;
@@ -12,7 +13,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Класс для вывода отчетов пользователей
@@ -24,6 +24,8 @@ public class ReportPrinter {
 
     private final UserService userService;
 
+    private final TrainingService trainingService;
+
     /**
      * Вывод информации о всех пользователях
      */
@@ -31,7 +33,7 @@ public class ReportPrinter {
         List<User> users = userService.getAllUsers().stream()
                 .filter(u -> !u.getRole().equals(Role.ROLE_ADMIN))
                 .toList();
-        var report = ReportCreator.getFullReport(users);
+        Map<String, Map<LocalDate, List<Training>>> report = ReportCreator.getFullReport(users, trainingService);
         for (Map.Entry<String, Map<LocalDate, List<Training>>> entry : report.entrySet()) {
             System.out.println(entry.getKey());
             for (Map.Entry<LocalDate, List<Training>> userInfo : entry.getValue().entrySet()) {
@@ -43,9 +45,10 @@ public class ReportPrinter {
 
     /**
      * Метод предназначен для вывода данных по тренировкам пользователя
-     * @param trainings Set, хранящий тренировки пользователя
+     *
+     * @param trainings Список, хранящий тренировки пользователя
      */
-    public void printAllTrainings(Set<Training> trainings) {
+    public void printAllTrainings(List<Training> trainings) {
         Map<LocalDate, List<Training>> report = ReportCreator.getUserReport(trainings);
         for (Map.Entry<LocalDate, List<Training>> entry : report.entrySet()) {
             System.out.println(entry.getKey().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
@@ -55,6 +58,7 @@ public class ReportPrinter {
 
     /**
      * Вывод информации о тренировках
+     *
      * @param trainings Список тренировок
      */
     public void printTrainings(List<Training> trainings) {
@@ -69,12 +73,13 @@ public class ReportPrinter {
 
     /**
      * Метод предназначен для вывода отчета о затраченных пользователем калориях
-     * @param user Пользователь
+     *
+     * @param user     Пользователь
      * @param dateFrom Дата начала отчета
-     * @param dateTo Дата окончания отчета
+     * @param dateTo   Дата окончания отчета
      */
     public void printCaloriesReport(User user, String dateFrom, String dateTo) {
-        Set<Training> trainings = userService.getUserByName(user.getName()).getTrainings();
+        List<Training> trainings = trainingService.getTrainings(user);
         Map<LocalDate, Integer> caloriesReport = ReportCreator.getCaloriesReport(DateHandler.getDateFromString(dateFrom), DateHandler.getDateFromString(dateTo), trainings);
         caloriesReport.forEach((key, value) -> System.out.println(key.format(DateTimeFormatter.ofPattern(DATE_PATTERN)) + " " + value + " кал" + "\n"));
     }

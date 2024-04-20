@@ -21,6 +21,7 @@ public class DBUtils {
                 String user = props.getProperty("username");
                 String password = props.getProperty("password");
                 connection = DriverManager.getConnection(url, user, password);
+                connection.setAutoCommit(true);
             } catch (SQLException e) {
                 throw new DbException(e.getMessage());
             }

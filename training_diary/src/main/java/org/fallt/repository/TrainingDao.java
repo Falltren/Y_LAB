@@ -14,7 +14,9 @@ public interface TrainingDao {
 
     void delete(Long id);
 
-    Optional<Training> findTrainingById(String trainingType, LocalDate date);
+    Optional<Training> findTrainingById(Long id, String trainingType, LocalDate date);
 
-    List<Training> findAllTrainings(Long userId);
+    List<Training> findAllUserTrainings(Long userId);
+
+    List<Training> findUserTrainingsByDay(Long userId, LocalDate date);
 }

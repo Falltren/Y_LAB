@@ -5,6 +5,7 @@ import org.fallt.model.Training;
 import org.fallt.model.TrainingType;
 import org.fallt.model.User;
 import org.fallt.repository.TrainingDao;
+import org.fallt.repository.TrainingTypeDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,11 +29,14 @@ class TrainingServiceTest {
 
     private TrainingDao trainingDao;
 
+    private TrainingTypeDao trainingTypeDao;
+
     @BeforeEach
     public void setUp() {
         userService = Mockito.mock(UserService.class);
         trainingDao = Mockito.mock(TrainingDao.class);
-        trainingService = new TrainingService(userService, trainingDao);
+        trainingTypeDao = Mockito.mock(TrainingTypeDao.class);
+        trainingService = new TrainingService(trainingDao, trainingTypeDao);
     }
 
     @Test

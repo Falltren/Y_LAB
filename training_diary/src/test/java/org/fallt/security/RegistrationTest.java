@@ -29,7 +29,7 @@ class RegistrationTest {
     @DisplayName("Test registration")
     void testRegister() {
         registration.register("John", "123", "123");
-        User user = new User(Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
+        User user = new User(1L, Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
         verify(userService, times(1)).addUser(user);
     }
 
@@ -37,7 +37,7 @@ class RegistrationTest {
     @DisplayName("Test registration when user input different password")
     void testRegisterWithDifferentPassword() {
         registration.register("John", "123", "321");
-        User user = new User(Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
+        User user = new User(1L, Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
         verify(userService, times(0)).addUser(user);
     }
 }

@@ -6,28 +6,29 @@ import org.fallt.model.Training;
 import org.fallt.model.TrainingType;
 import org.fallt.model.User;
 import org.fallt.repository.TrainingDao;
+import org.fallt.repository.TrainingTypeDao;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Сервис для работы с тренировками
  */
 public class TrainingService {
 
-    private UserService userService;
+    private final TrainingDao trainingDao;
 
-    private TrainingDao trainingDao;
+    private final TrainingTypeDao trainingTypeDao;
 
-    private Set<TrainingType> types = new HashSet<>();
+    private final AuditWriter auditWriter;
 
-    private AuditWriter auditWriter;
-
-    public TrainingService(UserService userService, TrainingDao trainingDao) {
-        this.userService = userService;
+    public TrainingService(TrainingDao trainingDao, TrainingTypeDao trainingTypeDao) {
         this.trainingDao = trainingDao;
+        this.trainingTypeDao = trainingTypeDao;
         auditWriter = new AuditWriter();
     }
 
@@ -36,8 +37,8 @@ public class TrainingService {
      *
      * @param type Новый тип тренировки
      */
-    public void addNewTrainingType(TrainingType type) {
-        types.add(type);
+    public TrainingType addNewTrainingType(TrainingType type) {
+        return trainingTypeDao.save(type);
     }
 
     /**
@@ -52,15 +53,21 @@ public class TrainingService {
      * @param description   Описание тренировки
      */
     public void addNewTraining(User user, String type, LocalDate date, int duration, int spentCalories, String description) {
-        TrainingType trainingType = new TrainingType(1, type.toLowerCase());
-        addNewTrainingType(trainingType);
-        Training training = new Training(1L, trainingType, date, duration, spentCalories, description, user);
-        User existedUser = userService.getUserByName(user.getName());
+        TrainingType trainingType;
+        Optional<TrainingType> typeOptional = trainingTypeDao.findByType(type);
+        if (typeOptional.isEmpty()) {
+            TrainingType newTrainingType = new TrainingType();
+            newTrainingType.setType(type);
+            trainingType = addNewTrainingType(newTrainingType);
+        } else {
+            trainingType = typeOptional.get();
+        }
+        Training training = createdTraining(trainingType, date, duration, spentCalories, description, user);
         if (checkSameTrainingFromDay(user, training, date)) {
             System.out.println(MessageFormat.format("Вы уже добавляли данный тип тренировок: {0} в указанную дату", trainingType));
             return;
         }
-        existedUser.getTrainings().add(training);
+        trainingDao.save(training);
         auditWriter.write(new Audit(user.getName(), "added new training"));
     }
 
@@ -72,9 +79,7 @@ public class TrainingService {
      */
     public List<Training> getTrainings(User user) {
         auditWriter.write(new Audit(user.getName(), "watch all trainings"));
-        return user.getTrainings().stream()
-                .sorted(Comparator.comparing(Training::getDate).thenComparing(t -> t.getType().getType()))
-                .toList();
+        return trainingDao.findAllUserTrainings(user.getId());
     }
 
     /**
@@ -87,11 +92,8 @@ public class TrainingService {
     public List<Training> getTrainings(User user, String inputDate) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate trainingDate = LocalDate.parse(inputDate, dateTimeFormatter);
-        List<Training> trainings = getTrainings(user);
         auditWriter.write(new Audit(user.getName(), "watch training for day " + inputDate));
-        return trainings.stream()
-                .filter(t -> t.getDate().isEqual(trainingDate))
-                .toList();
+        return trainingDao.findUserTrainingsByDay(user.getId(), trainingDate);
     }
 
     /**
@@ -103,14 +105,13 @@ public class TrainingService {
      * @param newValue     Map с новыми значениями параметров тренировки
      */
     public void editTraining(User user, String trainingType, LocalDate date, Map<String, String> newValue) {
-        Optional<Training> optionalTraining = userService.getUserByName(user.getName()).getTrainings().stream()
-                .filter(t -> t.getDate().equals(date) && t.getType().getType().equals(trainingType))
-                .findFirst();
+        Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), trainingType, date);
         if (optionalTraining.isPresent()) {
             Training training = optionalTraining.get();
             changeTrainingValue(training, newValue);
+            trainingDao.update(training);
+            auditWriter.write(new Audit(user.getName(), "user edit training"));
         }
-        auditWriter.write(new Audit(user.getName(), "user edit training"));
     }
 
     /**
@@ -121,11 +122,11 @@ public class TrainingService {
      * @param date         Дата тренировки
      */
     public void deleteTraining(User user, String trainingType, LocalDate date) {
-        Optional<Training> training = userService.getUserByName(user.getName()).getTrainings().stream()
-                .filter(t -> t.getDate().equals(date) && t.getType().getType().equals(trainingType))
-                .findFirst();
-        training.ifPresent(value -> user.getTrainings().remove(value));
-        auditWriter.write(new Audit(user.getName(), "user delete training"));
+        Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), trainingType, date);
+        if (optionalTraining.isPresent()) {
+            trainingDao.delete(optionalTraining.get().getId());
+            auditWriter.write(new Audit(user.getName(), "user delete training"));
+        }
     }
 
     /**
@@ -137,9 +138,8 @@ public class TrainingService {
      * @return Наличие или отсутствие тренировки такого же типа у пользователя за указанный день
      */
     private boolean checkSameTrainingFromDay(User user, Training training, LocalDate date) {
-        return user.getTrainings().stream()
-                .filter(t -> t.getDate().equals(date))
-                .anyMatch(t -> t.getType().equals(training.getType()));
+        Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), training.getType().getType(), date);
+        return optionalTraining.isPresent();
     }
 
     /**
@@ -150,17 +150,37 @@ public class TrainingService {
      */
     private void changeTrainingValue(Training training, Map<String, String> newValue) {
         for (Map.Entry<String, String> entry : newValue.entrySet()) {
-            if (entry.getKey().equals("1")) {
-                training.setType(new TrainingType(1, entry.getValue()));
-            } else if (entry.getKey().equals("2")) {
-                training.setDate(LocalDate.parse(entry.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-            } else if (entry.getKey().equals("3")) {
-                training.setDuration(Integer.parseInt(entry.getValue()));
-            } else if (entry.getKey().equals("4")) {
-                training.setSpentCalories(Integer.parseInt(entry.getValue()));
-            } else if (entry.getKey().equals("5")) {
-                training.setDescription(entry.getValue());
+            switch (entry.getKey()) {
+                case "1" -> {
+                    TrainingType trainingType;
+                    Optional<TrainingType> optionalType = trainingTypeDao.findByType(entry.getValue());
+                    if (optionalType.isEmpty()) {
+                        TrainingType newTrainingType = new TrainingType();
+                        newTrainingType.setType(entry.getValue());
+                        trainingType = addNewTrainingType(newTrainingType);
+                    } else {
+                        trainingType = optionalType.get();
+                    }
+                    training.setType(trainingType);
+                }
+                case "2" ->
+                        training.setDate(LocalDate.parse(entry.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                case "3" -> training.setDuration(Integer.parseInt(entry.getValue()));
+                case "4" -> training.setSpentCalories(Integer.parseInt(entry.getValue()));
+                case "5" -> training.setDescription(entry.getValue());
+                default -> System.out.println("Некорректный параметр");
             }
         }
+    }
+
+    private Training createdTraining(TrainingType type, LocalDate date, int duration, int spentCalories, String description, User user) {
+        Training training = new Training();
+        training.setType(type);
+        training.setDate(date);
+        training.setDuration(duration);
+        training.setSpentCalories(spentCalories);
+        training.setDescription(description);
+        training.setUser(user);
+        return training;
     }
 }
