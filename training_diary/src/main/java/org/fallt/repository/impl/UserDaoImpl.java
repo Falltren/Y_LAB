@@ -14,6 +14,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * Класс предназначен для взаимодействия с таблицей пользователей базы данных по средствам SQL запросов
+ */
 @AllArgsConstructor
 public class UserDaoImpl implements UserDao {
 

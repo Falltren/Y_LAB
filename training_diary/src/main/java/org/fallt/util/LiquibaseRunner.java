@@ -12,6 +12,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Класс предназначен для настройки объекта Liquibase
+ */
 public class LiquibaseRunner {
 
 

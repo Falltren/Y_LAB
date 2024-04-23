@@ -7,12 +7,19 @@ import java.io.InputStream;
 import java.sql.*;
 import java.util.Properties;
 
+/**
+ * Утилитарный класс для получения соединения с базой данных, с указанными в файле конфигурации настройками
+ */
 public class DBUtils {
     private static Connection connection;
 
     private DBUtils() {
     }
 
+    /**
+     * Метод получения соединения с базой данных
+     * @return Настроенный объект Connection
+     */
     public static Connection getConnection() {
         if (connection == null) {
             try {
@@ -29,6 +36,9 @@ public class DBUtils {
         return connection;
     }
 
+    /**
+     * Метод закрытия соединения с базой данных
+     */
     public static void closeConnection() {
         if (connection != null) {
             try {
@@ -49,6 +59,10 @@ public class DBUtils {
         }
     }
 
+    /**
+     * Метод закрытия объекта, реализующего интерфейс Statement
+     * @param st Объект, реализующий интерфейс Statement
+     */
     public static void closeStatement(Statement st) {
         if (st != null) {
             try {
@@ -59,6 +73,10 @@ public class DBUtils {
         }
     }
 
+    /**
+     * Метод для закрытия объекта, реализующего интерфейс ResultSet
+     * @param rs Объект, реализующий интерфейс ResultSet
+     */
     public static void closeResultSet(ResultSet rs) {
         if (rs != null) {
             try {

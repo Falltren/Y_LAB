@@ -8,6 +8,9 @@ import org.fallt.repository.TrainingTypeDao;
 import java.sql.*;
 import java.util.Optional;
 
+/**
+ * Класс предназначен для взаимодействия с таблицей типа тренировок базы данных по средствам SQL запросов
+ */
 @AllArgsConstructor
 public class TrainingTypeDaoImpl implements TrainingTypeDao {
 

@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Класс предназначен для взаимодействия с таблицей тренировок по средствам SQL запросов
+ */
 @AllArgsConstructor
 public class TrainingDaoImpl implements TrainingDao {
 
