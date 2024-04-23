@@ -16,14 +16,15 @@
                         cacheSize="1"/>
 
         <createTable schemaName="my_schema"
-                     tableName="users">
-            <column name="id" type="BIGINT" defaultValueSequenceNext="users_id_seq">
+                     tableName="users"
+                     remarks="Таблица пользователей">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="users_id_seq" remarks="Первичный ключ">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="role" type="VARCHAR(255)"/>
-            <column name="name" type="VARCHAR(255)"/>
-            <column name="registration" type="TIMESTAMP(6) WITHOUT TIMEZONE"/>
-            <column name="password" type="VARCHAR(255)"/>
+            <column name="role" type="VARCHAR(255)" remarks="Роль пользователя в системе"/>
+            <column name="name" type="VARCHAR(255)" remarks="Уникальное имя пользователя"/>
+            <column name="registration" type="TIMESTAMP(6) WITHOUT TIMEZONE" remarks="Дата и время регистрации"/>
+            <column name="password" type="VARCHAR(255)" remarks="Пароль пользователя для доступа к системе"/>
         </createTable>
 
         <createSequence schemaName="my_schema"
@@ -33,11 +34,12 @@
                         cacheSize="1"/>
 
         <createTable schemaName="my_schema"
-                     tableName="training_type">
-            <column name="id" type="INT" defaultValueSequenceNext="training_type_id_seq">
+                     tableName="training_type"
+                     remarks="Таблица, содержащая типы тренировок">
+            <column name="id" type="INT" defaultValueSequenceNext="training_type_id_seq" remarks="Первичный ключ">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="type" type="VARCHAR(255)"/>
+            <column name="type" type="VARCHAR(255)" remarks="Тип тренировки"/>
         </createTable>
 
         <createSequence schemaName="my_schema"
@@ -47,16 +49,17 @@
                         cacheSize="1"/>
 
         <createTable schemaName="my_schema"
-                     tableName="trainings">
-            <column name="id" type="BIGINT" defaultValueSequenceNext="trainings_id_seq">
+                     tableName="trainings"
+        remarks="Таблица тренировок">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="trainings_id_seq" remarks="Первичный ключ">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="training_type_id" type="INT"/>
-            <column name="date" type="TIMESTAMP(6) WITHOUT TIMEZONE"/>
-            <column name="duration" type="INT"/>
-            <column name="spent_calories" type="INT"/>
-            <column name="description" type="VARCHAR(255)"/>
-            <column name="user_id" type="BIGINT"/>
+            <column name="training_type_id" type="INT" remarks="Внешний ключ, связывающий с таблицей типов тренировок"/>
+            <column name="date" type="TIMESTAMP(6) WITHOUT TIMEZONE" remarks="Дата тренировки"/>
+            <column name="duration" type="INT" remarks="Продолжительность тренировки в минутах"/>
+            <column name="spent_calories" type="INT" remarks="Количество затраченных калорий"/>
+            <column name="description" type="VARCHAR(255)" remarks="Описание тренировки"/>
+            <column name="user_id" type="BIGINT" remarks="Внешний ключ, связывающий тренировку с пользователем"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableSchemaName="my_schema"
