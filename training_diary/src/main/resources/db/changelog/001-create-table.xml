@@ -9,9 +9,15 @@
             CREATE SCHEMA my_schema
         </sql>
 
+        <createSequence schemaName="my_schema"
+                        sequenceName="users_id_seq"
+                        startValue="2"
+                        incrementBy="1"
+                        cacheSize="1"/>
+
         <createTable schemaName="my_schema"
                      tableName="users">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="users_id_seq">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="role" type="VARCHAR(255)"/>
@@ -21,28 +27,28 @@
         </createTable>
 
         <createSequence schemaName="my_schema"
-                        sequenceName="users_id_seq"
-                        startValue="1"
-                        incrementBy="1"
-                        cacheSize="1"/>
-
-        <createTable schemaName="my_schema"
-                     tableName="training_type">
-            <column name="id" type="INT">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="type" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createSequence schemaName="my_schema"
                         sequenceName="training_type_id_seq"
                         startValue="1"
                         incrementBy="1"
                         cacheSize="1"/>
 
         <createTable schemaName="my_schema"
+                     tableName="training_type">
+            <column name="id" type="INT" defaultValueSequenceNext="training_type_id_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createSequence schemaName="my_schema"
+                        sequenceName="trainings_id_seq"
+                        startValue="1"
+                        incrementBy="1"
+                        cacheSize="1"/>
+
+        <createTable schemaName="my_schema"
                      tableName="trainings">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="trainings_id_seq">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="training_type_id" type="INT"/>
@@ -52,12 +58,6 @@
             <column name="description" type="VARCHAR(255)"/>
             <column name="user_id" type="BIGINT"/>
         </createTable>
-
-        <createSequence schemaName="my_schema"
-                        sequenceName="trainings_id_seq"
-                        startValue="1"
-                        incrementBy="1"
-                        cacheSize="1"/>
 
         <addForeignKeyConstraint baseTableSchemaName="my_schema"
                                  baseTableName="trainings"

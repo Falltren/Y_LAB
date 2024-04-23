@@ -23,17 +23,15 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public void save(Training training) {
-        String sql = "INSERT INTO my_schema.trainings (id, training_type_id, date, duration, spent_calories, description, user_id)" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO my_schema.trainings (training_type_id, date, duration, spent_calories, description, user_id)" +
+                " VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            Long id = getId();
-            preparedStatement.setLong(1, id);
-            preparedStatement.setInt(2, training.getType().getId());
-            preparedStatement.setObject(3, training.getDate());
-            preparedStatement.setInt(4, training.getDuration());
-            preparedStatement.setInt(5, training.getSpentCalories());
-            preparedStatement.setString(6, training.getDescription());
-            preparedStatement.setLong(7, training.getUser().getId());
+            preparedStatement.setInt(1, training.getType().getId());
+            preparedStatement.setObject(2, training.getDate());
+            preparedStatement.setInt(3, training.getDuration());
+            preparedStatement.setInt(4, training.getSpentCalories());
+            preparedStatement.setString(5, training.getDescription());
+            preparedStatement.setLong(6, training.getUser().getId());
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
@@ -130,20 +128,6 @@ public class TrainingDaoImpl implements TrainingDao {
             throw new DBException(e.getMessage());
         }
         return trainings;
-    }
-
-    private Long getId() throws SQLException {
-        String sql = "SELECT nextval('my_schema.trainings_id_seq')";
-        ResultSet resultSet = null;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return resultSet.getLong(1);
-            }
-        } finally {
-            DBUtils.closeResultSet(resultSet);
-        }
-        throw new SQLException("Unable to retrieve value from sequence trainings_id_seq");
     }
 
     private Training instantiateTraining(ResultSet resultSet) throws SQLException {

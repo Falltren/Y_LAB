@@ -23,6 +23,7 @@ public class LiquibaseRunner {
             String serviceSchemaName = "service_schema";
             createServiceSchema(connection, serviceSchemaName);
             database.setLiquibaseSchemaName(serviceSchemaName);
+            database.setDefaultSchemaName("my_schema");
             Liquibase liquibase =
                     new Liquibase("db/changelog/db.changelog-master.xml", new ClassLoaderResourceAccessor(), database);
             liquibase.update();

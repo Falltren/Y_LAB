@@ -21,14 +21,12 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void create(User user) {
-        String sql = "INSERT INTO my_schema.users (id, role, name, registration, password) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO my_schema.users (role, name, registration, password) VALUES (?, ?, ?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            Long id = getId();
-            preparedStatement.setLong(1, id);
-            preparedStatement.setString(2, user.getRole().name());
-            preparedStatement.setString(3, user.getName());
-            preparedStatement.setObject(4, user.getRegistration());
-            preparedStatement.setString(5, user.getPassword());
+            preparedStatement.setString(1, user.getRole().name());
+            preparedStatement.setString(2, user.getName());
+            preparedStatement.setObject(3, user.getRegistration());
+            preparedStatement.setString(4, user.getPassword());
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
@@ -74,17 +72,6 @@ public class UserDaoImpl implements UserDao {
             throw new DBException(e.getMessage());
         }
         return users;
-    }
-
-    private Long getId() throws SQLException {
-        String sql = "SELECT nextval('my_schema.users_id_seq')";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return resultSet.getLong(1);
-            }
-        }
-        throw new SQLException("Unable to retrieve value from sequence users_id_seq");
     }
 
     private User instantiateUser(ResultSet resultSet) throws SQLException {

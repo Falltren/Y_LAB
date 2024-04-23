@@ -5,10 +5,7 @@ import org.fallt.exception.DBException;
 import org.fallt.model.TrainingType;
 import org.fallt.repository.TrainingTypeDao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -18,14 +15,13 @@ public class TrainingTypeDaoImpl implements TrainingTypeDao {
 
     @Override
     public TrainingType save(TrainingType trainingType) {
-        String sql = "INSERT INTO my_schema.training_type (id, type) VALUES (?, ?)";
+        String sql = "INSERT INTO my_schema.training_type (type) VALUES (?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            Integer id = getId();
-            preparedStatement.setInt(1, id);
-            preparedStatement.setString(2, trainingType.getType());
+            preparedStatement.setString(1, trainingType.getType());
             preparedStatement.executeUpdate();
-            connection.commit();
+            int id = getLastKey(connection);
             trainingType.setId(id);
+            connection.commit();
         } catch (SQLException e) {
             throw new DBException(e.getMessage());
         }
@@ -54,14 +50,14 @@ public class TrainingTypeDaoImpl implements TrainingTypeDao {
         return trainingType;
     }
 
-    private Integer getId() throws SQLException {
-        String sql = "SELECT nextval('my_schema.training_type_id_seq')";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            ResultSet resultSet = preparedStatement.executeQuery();
+    private Integer getLastKey(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery("SELECT lastval()");
             if (resultSet.next()) {
                 return resultSet.getInt(1);
             }
         }
-        throw new SQLException("Unable to retrieve value from sequence training_type_id_seq");
+        throw new DBException("Can`t get last key from sequence");
     }
+
 }
