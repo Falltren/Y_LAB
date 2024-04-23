@@ -1,10 +1,5 @@
 CREATE SCHEMA IF NOT EXISTS my_schema;
 
-CREATE TABLE IF NOT EXISTS my_schema.training_type(
-    id INT PRIMARY KEY,
-    type VARCHAR(255)
-);
-
 CREATE SEQUENCE my_schema.training_type_id_seq
     START WITH 4
     INCREMENT BY 1
@@ -12,12 +7,9 @@ CREATE SEQUENCE my_schema.training_type_id_seq
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE IF NOT EXISTS my_schema.users (
-    id BIGINT PRIMARY KEY,
-    role VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    registration timestamp(6) without time zone,
-    password VARCHAR(255) NOT NULL
+CREATE TABLE IF NOT EXISTS my_schema.training_type(
+    id INT PRIMARY KEY DEFAULT nextval('my_schema.training_type_id_seq'),
+    type VARCHAR(255)
 );
 
 CREATE SEQUENCE my_schema.users_id_seq
@@ -27,14 +19,12 @@ CREATE SEQUENCE my_schema.users_id_seq
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE IF NOT EXISTS my_schema.trainings (
-    id BIGINT PRIMARY KEY,
-    training_type_id INT,
-    date timestamp(6) without time zone,
-    duration INT,
-    spent_calories INT,
-    description VARCHAR(255),
-    user_id BIGINT
+CREATE TABLE IF NOT EXISTS my_schema.users (
+    id BIGINT PRIMARY KEY DEFAULT nextval('my_schema.users_id_seq'),
+    role VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    registration timestamp(6) without time zone,
+    password VARCHAR(255) NOT NULL
 );
 
 CREATE SEQUENCE my_schema.trainings_id_seq
@@ -43,6 +33,16 @@ CREATE SEQUENCE my_schema.trainings_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
+
+CREATE TABLE IF NOT EXISTS my_schema.trainings (
+    id BIGINT PRIMARY KEY DEFAULT nextval('my_schema.trainings_id_seq'),
+    training_type_id INT,
+    date timestamp(6) without time zone,
+    duration INT,
+    spent_calories INT,
+    description VARCHAR(255),
+    user_id BIGINT
+);
 
 INSERT INTO my_schema.users (id, role, name, registration, password)
 VALUES (1, 'ROLE_USER', 'Jack', '2024-04-10 15:00:00.00000', 'pass1');
