@@ -74,8 +74,12 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public Optional<Training> findTrainingById(Long id, String trainingType, LocalDate date) {
-        String sql = "SELECT * FROM my_schema.trainings tr LEFT JOIN my_schema.training_type tt ON tr.training_type_id = tt.id" +
-                " WHERE tr.user_id = ? AND tt.type = ? AND tr.date = ?";
+        String sql = """
+                SELECT *
+                FROM my_schema.trainings tr
+                LEFT JOIN my_schema.training_type tt ON tr.training_type_id = tt.id
+                WHERE tr.user_id = ? AND tt.type = ? AND tr.date = ?
+                """;
         ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
@@ -97,8 +101,12 @@ public class TrainingDaoImpl implements TrainingDao {
     @Override
     public List<Training> findAllUserTrainings(Long userId) {
         List<Training> trainings = new ArrayList<>();
-        String sql = "SELECT * FROM my_schema.trainings tr LEFT JOIN my_schema.training_type tt" +
-                " ON tr.training_type_id = tt.id WHERE user_id = ?";
+        String sql = """
+                SELECT *
+                FROM my_schema.trainings tr
+                LEFT JOIN my_schema.training_type tt ON tr.training_type_id = tt.id
+                WHERE user_id = ?
+                """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -116,8 +124,12 @@ public class TrainingDaoImpl implements TrainingDao {
     @Override
     public List<Training> findUserTrainingsByDay(Long userId, LocalDate date) {
         List<Training> trainings = new ArrayList<>();
-        String sql = "SELECT * FROM my_schema.trainings tr LEFT JOIN my_schema.training_type tt" +
-                " ON tr.training_type_id = tt.id WHERE user_id = ? AND tr.date = ?";
+        String sql = """
+                SELECT * 
+                FROM my_schema.trainings tr 
+                LEFT JOIN my_schema.training_type tt ON tr.training_type_id = tt.id 
+                WHERE user_id = ? AND tr.date = ?              
+                """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, userId);
             preparedStatement.setObject(2, date);

@@ -39,8 +39,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> getUserByName(String name) {
-        String sql = "SELECT * FROM my_schema.users u LEFT JOIN my_schema.trainings tr ON tr.user_id = u.id" +
-                " LEFT JOIN my_schema.training_type tt ON tr.training_type_id = tt.id WHERE name = ?";
+        String sql = """
+                SELECT * 
+                FROM my_schema.users u 
+                LEFT JOIN my_schema.trainings tr ON tr.user_id = u.id 
+                LEFT JOIN my_schema.training_type tt ON tr.training_type_id = tt.id 
+                WHERE name = ?
+                """;
         Set<Training> trainings = new HashSet<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, name);
