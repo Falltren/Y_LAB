@@ -40,7 +40,7 @@ public class DBUtils {
     }
 
     private static Properties loadProperties() {
-        try (InputStream inputStream = DBUtils.class.getResourceAsStream("/db.properties")) {
+        try (InputStream inputStream = DBUtils.class.getResourceAsStream("/liquibase.properties")) {
             Properties properties = new Properties();
             properties.load(inputStream);
             return properties;
