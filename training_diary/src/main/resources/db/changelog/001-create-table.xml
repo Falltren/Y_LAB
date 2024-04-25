@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd"
+                   logicalFilePath="db/changelog/changelog-master.xml">
+    <changeSet id="001-create-table" author="fallt">
+        <sql endDelimiter=";">
+            CREATE SCHEMA my_schema
+        </sql>
+
+        <createSequence schemaName="my_schema"
+                        sequenceName="users_id_seq"
+                        startValue="2"
+                        incrementBy="1"
+                        cacheSize="1"/>
+
+        <createTable schemaName="my_schema"
+                     tableName="users"
+                     remarks="Таблица пользователей">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="users_id_seq" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(255)" remarks="Роль пользователя в системе"/>
+            <column name="name" type="VARCHAR(255)" remarks="Уникальное имя пользователя"/>
+            <column name="registration" type="TIMESTAMP(6) WITHOUT TIMEZONE" remarks="Дата и время регистрации"/>
+            <column name="password" type="VARCHAR(255)" remarks="Пароль пользователя для доступа к системе"/>
+        </createTable>
+
+        <createSequence schemaName="my_schema"
+                        sequenceName="training_type_id_seq"
+                        startValue="1"
+                        incrementBy="1"
+                        cacheSize="1"/>
+
+        <createTable schemaName="my_schema"
+                     tableName="training_type"
+                     remarks="Таблица, содержащая типы тренировок">
+            <column name="id" type="INT" defaultValueSequenceNext="training_type_id_seq" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)" remarks="Тип тренировки"/>
+        </createTable>
+
+        <createSequence schemaName="my_schema"
+                        sequenceName="trainings_id_seq"
+                        startValue="1"
+                        incrementBy="1"
+                        cacheSize="1"/>
+
+        <createTable schemaName="my_schema"
+                     tableName="trainings"
+        remarks="Таблица тренировок">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="trainings_id_seq" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="training_type_id" type="INT" remarks="Внешний ключ, связывающий с таблицей типов тренировок"/>
+            <column name="date" type="TIMESTAMP(6) WITHOUT TIMEZONE" remarks="Дата тренировки"/>
+            <column name="duration" type="INT" remarks="Продолжительность тренировки в минутах"/>
+            <column name="spent_calories" type="INT" remarks="Количество затраченных калорий"/>
+            <column name="description" type="VARCHAR(255)" remarks="Описание тренировки"/>
+            <column name="user_id" type="BIGINT" remarks="Внешний ключ, связывающий тренировку с пользователем"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableSchemaName="my_schema"
+                                 baseTableName="trainings"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_training_user"
+                                 referencedTableSchemaName="my_schema"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableSchemaName="my_schema"
+                                 baseTableName="trainings"
+                                 baseColumnNames="training_type_id"
+                                 constraintName="fk_training_type"
+                                 referencedTableSchemaName="my_schema"
+                                 referencedTableName="training_type"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

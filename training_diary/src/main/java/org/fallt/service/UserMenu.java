@@ -8,6 +8,7 @@ import org.fallt.model.User;
 import org.fallt.out.ReportPrinter;
 import org.fallt.security.Authentication;
 import org.fallt.security.Registration;
+import org.fallt.util.DBUtils;
 import org.fallt.util.DateHandler;
 import org.fallt.util.Message;
 
@@ -16,6 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Класс предназначен для визуализации взаимодействия пользователя с программой, предоставляет набор меню,
+ * предназначенных для регистрации, авторизации и осуществления действия с тренировками
+ */
 @RequiredArgsConstructor
 public class UserMenu {
 
@@ -33,6 +38,9 @@ public class UserMenu {
 
     private final ReportPrinter reportPrinter;
 
+    /**
+     * Метод для запуска приложения, выводит пользователю главное меню
+     */
     public void start() {
         while (!isStop) {
             System.out.println(Message.MAIN_MENU);
@@ -40,7 +48,10 @@ public class UserMenu {
             switch (selection) {
                 case "1" -> registerMenu();
                 case "2" -> authenticationMenu();
-                case "0" -> isStop = true;
+                case "0" -> {
+                    DBUtils.closeConnection();
+                    isStop = true;
+                }
                 default -> System.out.println(Message.INCORRECT_MENU_NUMBER);
             }
         }
@@ -64,7 +75,7 @@ public class UserMenu {
         if (registerUser == null) {
             return;
         }
-        if (registerUser.getRole().equals(Role.ADMIN)) {
+        if (registerUser.getRole().equals(Role.ROLE_ADMIN)) {
             getAdminMenu();
         } else {
             getUserMenu(registerUser);
@@ -93,7 +104,7 @@ public class UserMenu {
                 case "1" -> inputTrainingMenu(user);
                 case "2" -> deleteTrainingMenu(user);
                 case "3" -> editTrainingMenu(user);
-                case "4" -> reportPrinter.printAllTrainings(user.getTrainings());
+                case "4" -> reportPrinter.printAllTrainings(trainingService.getTrainings(user));
                 case "5" -> getCaloriesReportMenu(user);
                 case "0" -> {
                     return;
@@ -142,7 +153,7 @@ public class UserMenu {
         trainingService.deleteTraining(user, trainingType, DateHandler.getDateFromString(date));
     }
 
-    public void editTrainingMenu(User user) {
+    private void editTrainingMenu(User user) {
         if (!authentication.checkAuthenticate(user)) {
             System.out.println(Message.UNAUTHENTICATED_USER);
             return;

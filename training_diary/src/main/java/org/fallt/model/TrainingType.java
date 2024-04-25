@@ -1,13 +1,15 @@
 package org.fallt.model;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
 @EqualsAndHashCode
 @AllArgsConstructor
+@NoArgsConstructor
 public class TrainingType {
+
+    private Integer id;
 
     private String type;
 

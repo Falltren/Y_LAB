@@ -11,6 +11,8 @@ import java.time.LocalDate;
 @ToString
 public class Training {
 
+    private Long id;
+
     private TrainingType type;
 
     private LocalDate date;
@@ -20,5 +22,7 @@ public class Training {
     private int spentCalories;
 
     private String description;
+
+    private User user;
 
 }
