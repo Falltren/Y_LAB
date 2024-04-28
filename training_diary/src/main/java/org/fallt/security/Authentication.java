@@ -3,6 +3,9 @@ package org.fallt.security;
 import lombok.RequiredArgsConstructor;
 import org.fallt.audit.Audit;
 import org.fallt.audit.AuditWriter;
+import org.fallt.dto.request.LoginRq;
+import org.fallt.dto.response.LoginRs;
+import org.fallt.mapper.UserMapper;
 import org.fallt.model.User;
 import org.fallt.service.UserService;
 
@@ -24,20 +27,19 @@ public class Authentication {
     /**
      * Аутентификация пользователя, производится проверка наличия указанного пользователя и соответствующего ему пароля в хранилище
      *
-     * @param name     Имя пользователя
-     * @param password Пароль пользователя
-     * @return При успешной аутентификации возвращается пользователь их хранилища, иначе будет возвращен null
+     * @param request
+     * @return Пользователь
      */
-    public User login(String name, String password) {
-        User user = userService.getUserByName(name);
-        if (user == null || !user.getPassword().equals(password)) {
+    public LoginRs login(LoginRq request) {
+        User user = userService.getUserByName(request.getName());
+        if (user == null || !user.getPassword().equals(request.getPassword())) {
             System.out.println("Введены некорректные данные, повторите ввод");
             return null;
         }
         authenticatedUsers.add(user);
         System.out.println("Вы успешно вошли в систему");
-        auditWriter.write(new Audit(name, "user is logged in"));
-        return user;
+        auditWriter.write(new Audit(request.getName(), "user is logged in"));
+        return UserMapper.INSTANCE.toLoginResponse(user);
     }
 
     /**

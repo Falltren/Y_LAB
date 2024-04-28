@@ -1,5 +1,7 @@
 package org.fallt.security;
 
+import org.fallt.dto.request.LoginRq;
+import org.fallt.dto.response.LoginRs;
 import org.fallt.model.Role;
 import org.fallt.model.User;
 import org.fallt.service.UserService;
@@ -32,10 +34,9 @@ class AuthenticationTest {
     void testLogin() {
         User user = new User(1L, Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
         when(userService.getUserByName("John")).thenReturn(user);
-        String name = "John";
-        String password = "123";
-        User actual = authentication.login(name, password);
-        assertThat(actual).isEqualTo(user);
+        LoginRq request = createRequest("123");
+        LoginRs actual = authentication.login(request);
+        assertThat(actual.getName()).isEqualTo("John");
     }
 
     @Test
@@ -43,9 +44,15 @@ class AuthenticationTest {
     void testLoginWithWrongData() {
         User user = new User(1L, Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
         when(userService.getAllUsers()).thenReturn(List.of(user));
-        String name = "John";
-        String password = "222";
-        User actual = authentication.login(name, password);
+        LoginRq request = createRequest("222");
+        LoginRs actual = authentication.login(request);
         assertThat(actual).isNull();
+    }
+
+    private LoginRq createRequest(String password) {
+        return LoginRq.builder()
+                .name("John")
+                .password(password)
+                .build();
     }
 }

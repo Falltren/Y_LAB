@@ -2,12 +2,12 @@ package org.fallt.security;
 
 import org.fallt.audit.Audit;
 import org.fallt.audit.AuditWriter;
-import org.fallt.model.Role;
+import org.fallt.dto.request.RegisterRq;
+import org.fallt.dto.response.RegisterRs;
+import org.fallt.exception.BadRequestException;
+import org.fallt.mapper.UserMapper;
 import org.fallt.model.User;
 import org.fallt.service.UserService;
-
-import java.time.LocalDateTime;
-import java.util.HashSet;
 
 /**
  * Регистрация нового пользователя
@@ -24,21 +24,21 @@ public class Registration {
     }
 
     /**
-     * Регистрация нового пользователя, если пользователь с указанным именем уже существует,
-     * пользователь получит об этом соответствующее уведомление
+     * Регистрация пользователя
      *
-     * @param name            Имя пользователя
-     * @param password        Пароль
-     * @param confirmPassword Подтверждение пароля
+     * @param registerRq Введенные пользователем данные
      */
-    public void register(String name, String password, String confirmPassword) {
-        if (!checkPassword(password, confirmPassword)) {
-            System.out.println("Введенные пароли не совпадают, повторите ввод");
-            return;
+    public RegisterRs register(RegisterRq registerRq) {
+        if (!checkPassword(registerRq.getPassword(), registerRq.getConfirmPassword())) {
+            throw new BadRequestException("Введенные пароли не совпадают, повторите ввод");
         }
-        User user = new User(1L, Role.ROLE_USER, name, password, LocalDateTime.now(), new HashSet<>());
+        if (userService.getUserByName(registerRq.getName()) != null) {
+            throw new BadRequestException("Пользователь с таким именем уже существует");
+        }
+        User user = UserMapper.INSTANCE.dtoToEntity(registerRq);
         userService.addUser(user);
-        auditWriter.write(new Audit(name, "user registered"));
+        auditWriter.write(new Audit(registerRq.getName(), "user registered"));
+        return UserMapper.INSTANCE.toRegisterResponse(user);
     }
 
     /**

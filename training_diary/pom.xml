@@ -6,7 +6,10 @@
 
     <groupId>org.example</groupId>
     <artifactId>training_diary</artifactId>
+    <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
+    <name>training_diary Maven Webapp</name>
+    <url>http://maven.apache.org</url>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -20,9 +23,13 @@
         <liquibase.version>4.26.0</liquibase.version>
         <testcontainers.version>1.19.3</testcontainers.version>
         <maven.surefire.version>3.2.5</maven.surefire.version>
+        <servlet.version>6.0.0</servlet.version>
+        <jackson.version>2.15.4</jackson.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>
 
     <build>
+        <finalName>training_diary</finalName>
         <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -84,7 +91,32 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

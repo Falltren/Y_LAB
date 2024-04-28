@@ -27,9 +27,10 @@ public class DBUtils {
                 String url = props.getProperty("url");
                 String user = props.getProperty("username");
                 String password = props.getProperty("password");
+                Class.forName("org.postgresql.Driver");
                 connection = DriverManager.getConnection(url, user, password);
                 connection.setAutoCommit(true);
-            } catch (SQLException e) {
+            } catch (SQLException | ClassNotFoundException e) {
                 throw new DBException(e.getMessage());
             }
         }

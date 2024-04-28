@@ -2,6 +2,10 @@ package org.fallt.service;
 
 import org.fallt.audit.Audit;
 import org.fallt.audit.AuditWriter;
+import org.fallt.dto.request.EditTrainingDto;
+import org.fallt.dto.request.TrainingDto;
+import org.fallt.exception.BadRequestException;
+import org.fallt.mapper.TrainingMapper;
 import org.fallt.model.Training;
 import org.fallt.model.TrainingType;
 import org.fallt.model.User;
@@ -24,11 +28,14 @@ public class TrainingService {
 
     private final TrainingTypeDao trainingTypeDao;
 
+    private final UserService userService;
+
     private final AuditWriter auditWriter;
 
-    public TrainingService(TrainingDao trainingDao, TrainingTypeDao trainingTypeDao) {
+    public TrainingService(TrainingDao trainingDao, TrainingTypeDao trainingTypeDao, UserService userService) {
         this.trainingDao = trainingDao;
         this.trainingTypeDao = trainingTypeDao;
+        this.userService = userService;
         auditWriter = new AuditWriter();
     }
 
@@ -43,53 +50,48 @@ public class TrainingService {
 
     /**
      * Добавляет новую тренировку пользователя. Если тренировка данного вида уже добавлялась в указанную дату,
-     * новая тренировка добавлена не будет
+     * * новая тренировка добавлена не будет
      *
-     * @param user          Пользователь
-     * @param type          Тип тренировки
-     * @param date          Дата тренировки
-     * @param duration      Продолжительность тренировки в минутах
-     * @param spentCalories Количество потраченных калорий
-     * @param description   Описание тренировки
+     * @param request Pojo объект с данными о тренировке
      */
-    public void addNewTraining(User user, String type, LocalDate date, int duration, int spentCalories, String description) {
-        TrainingType trainingType;
-        Optional<TrainingType> typeOptional = trainingTypeDao.findByType(type);
-        if (typeOptional.isEmpty()) {
-            TrainingType newTrainingType = new TrainingType();
-            newTrainingType.setType(type);
-            trainingType = addNewTrainingType(newTrainingType);
-        } else {
-            trainingType = typeOptional.get();
-        }
-        Training training = createdTraining(trainingType, date, duration, spentCalories, description, user);
-        if (checkSameTrainingFromDay(user, training, date)) {
+    public TrainingDto addNewTraining(TrainingDto request) {
+        TrainingType trainingType = getTrainingType(request.getType());
+        Training training = TrainingMapper.INSTANCE.toEntity(request);
+        User user = userService.getUserByName(request.getUserName());
+        training.setType(trainingType);
+        training.setUser(user);
+        if (checkSameTrainingFromDay(user, training, request.getDate())) {
             System.out.println(MessageFormat.format("Вы уже добавляли данный тип тренировок: {0} в указанную дату", trainingType));
-            return;
+            throw new BadRequestException(MessageFormat.format("Вы уже добавляли данный тип тренировок: {0} в указанную дату", trainingType));
         }
         trainingDao.save(training);
-        auditWriter.write(new Audit(user.getName(), "added new training"));
+        auditWriter.write(new Audit(request.getUserName(), "added new training"));
+        return TrainingMapper.INSTANCE.toDtoResponse(training);
     }
 
     /**
      * Просмотр данных о тренировках пользователя
      *
-     * @param user Пользователь
+     * @param userName Имя пользователя
      * @return Список тренировок
      */
-    public List<Training> getTrainings(User user) {
+    public List<TrainingDto> getTrainings(String userName) {
+        User user = userService.getUserByName(userName);
         auditWriter.write(new Audit(user.getName(), "watch all trainings"));
-        return trainingDao.findAllUserTrainings(user.getId());
+        List<Training> trainings = trainingDao.findAllUserTrainings(user.getId());
+        setUserToTrainings(trainings, user);
+        return TrainingMapper.INSTANCE.listEntityToListDto(trainings);
     }
 
     /**
      * Просмотр данных о тренировках пользователя за определенный день
      *
-     * @param user      Пользователь
+     * @param userName  Имя пользователя
      * @param inputDate Дата в виде строки, проверка валидности передаваемой даты должны осуществляться до передачи в данный метод
      * @return Список тренировок
      */
-    public List<Training> getTrainings(User user, String inputDate) {
+    public List<Training> getTrainings(String userName, String inputDate) {
+        User user = userService.getUserByName(userName);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate trainingDate = LocalDate.parse(inputDate, dateTimeFormatter);
         auditWriter.write(new Audit(user.getName(), "watch training for day " + inputDate));
@@ -99,19 +101,21 @@ public class TrainingService {
     /**
      * Редактирование тренировки пользователя
      *
-     * @param user         Пользователь
-     * @param trainingType Тип тренировки
-     * @param date         Дата тренировки
-     * @param newValue     Map с новыми значениями параметров тренировки
+     * @param userName  Имя пользователя
+     * @param request   Объект с новыми значениями для тренировки, а также со значениями типа и даты редактируемой тренировки для ее поиска в базе данных
      */
-    public void editTraining(User user, String trainingType, LocalDate date, Map<String, String> newValue) {
-        Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), trainingType, date);
-        if (optionalTraining.isPresent()) {
-            Training training = optionalTraining.get();
-            changeTrainingValue(training, newValue);
-            trainingDao.update(training);
-            auditWriter.write(new Audit(user.getName(), "user edit training"));
+    public TrainingDto editTraining(String userName, EditTrainingDto request) {
+        User user = userService.getUserByName(userName);
+        Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), request.getCurrentType(), request.getCurrentDate());
+        if (optionalTraining.isEmpty()) {
+            throw new BadRequestException("Проверьте введенные данные");
         }
+        //TrainingType trainingType = getTrainingType(request.getCurrentType());
+        Training training = optionalTraining.get();
+        TrainingMapper.INSTANCE.updateTrainingFromDto(request.getNewValue(), training);
+        trainingDao.update(training);
+        auditWriter.write(new Audit(user.getName(), "user edit training"));
+        return TrainingMapper.INSTANCE.toDtoResponse(training);
     }
 
     /**
@@ -182,5 +186,25 @@ public class TrainingService {
         training.setDescription(description);
         training.setUser(user);
         return training;
+    }
+
+    private List<Training> setUserToTrainings(List<Training> trainings, User user) {
+        for (Training training : trainings) {
+            training.setUser(user);
+        }
+        return trainings;
+    }
+
+    private TrainingType getTrainingType(String type) {
+        TrainingType trainingType;
+        Optional<TrainingType> typeOptional = trainingTypeDao.findByType(type);
+        if (typeOptional.isEmpty()) {
+            TrainingType newTrainingType = new TrainingType();
+            newTrainingType.setType(type);
+            trainingType = addNewTrainingType(newTrainingType);
+        } else {
+            trainingType = typeOptional.get();
+        }
+        return trainingType;
     }
 }

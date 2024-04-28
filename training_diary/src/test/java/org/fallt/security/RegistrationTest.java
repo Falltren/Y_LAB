@@ -1,17 +1,16 @@
 package org.fallt.security;
 
-import org.fallt.model.Role;
-import org.fallt.model.User;
+import org.fallt.dto.request.RegisterRq;
+import org.fallt.dto.response.RegisterRs;
+import org.fallt.exception.BadRequestException;
 import org.fallt.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
-
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RegistrationTest {
 
@@ -28,16 +27,25 @@ class RegistrationTest {
     @Test
     @DisplayName("Test registration")
     void testRegister() {
-        registration.register("John", "123", "123");
-        User user = new User(1L, Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
-        verify(userService, times(1)).addUser(user);
+        RegisterRq request = createRequest("123");
+        RegisterRs response = registration.register(request);
+        assertThat(response.getName()).isEqualTo("John");
     }
 
     @Test
     @DisplayName("Test registration when user input different password")
     void testRegisterWithDifferentPassword() {
-        registration.register("John", "123", "321");
-        User user = new User(1L, Role.ROLE_USER, "John", "123", LocalDateTime.now(), new HashSet<>());
-        verify(userService, times(0)).addUser(user);
+        RegisterRq request = createRequest("321");
+        assertThatThrownBy(() ->
+                registration.register(request)
+        ).isInstanceOf(BadRequestException.class);
+    }
+
+    private RegisterRq createRequest(String confirmPassword) {
+        return RegisterRq.builder()
+                .name("John")
+                .password("123")
+                .confirmPassword(confirmPassword)
+                .build();
     }
 }
