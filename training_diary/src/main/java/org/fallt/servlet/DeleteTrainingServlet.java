@@ -9,21 +9,21 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.fallt.dto.request.EditTrainingRq;
-import org.fallt.dto.request.TrainingDto;
 import org.fallt.service.TrainingService;
 import org.fallt.util.InstanceCreator;
 import org.fallt.util.SessionUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
-@WebServlet("/training/edit")
-public class EditTrainingServlet extends HttpServlet {
+@WebServlet("/training/delete")
+public class DeleteTrainingServlet extends HttpServlet {
 
     private final TrainingService trainingService;
 
     private final ObjectMapper objectMapper;
 
-    public EditTrainingServlet() {
+    public DeleteTrainingServlet() {
         trainingService = InstanceCreator.getTrainingService();
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
@@ -31,17 +31,16 @@ public class EditTrainingServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!SessionUtils.isAuthenticated(req)) {
             resp.sendRedirect("/user/login");
             return;
         }
-        EditTrainingRq requestDto = objectMapper.readValue(req.getInputStream(), EditTrainingRq.class);
+        String type = req.getParameter("type");
+        String date = req.getParameter("date");
         String userName = String.valueOf(req.getSession().getAttribute("user"));
-        TrainingDto responseDto = trainingService.editTraining(userName, requestDto);
+        trainingService.deleteTraining(userName, type, date);
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.setContentType("application/json");
-        byte[] bytes = objectMapper.writeValueAsBytes(responseDto);
-        resp.getOutputStream().write(bytes);
     }
 }

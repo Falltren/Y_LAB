@@ -2,7 +2,7 @@ package org.fallt.service;
 
 import org.fallt.audit.Audit;
 import org.fallt.audit.AuditWriter;
-import org.fallt.dto.request.EditTrainingDto;
+import org.fallt.dto.request.EditTrainingRq;
 import org.fallt.dto.request.TrainingDto;
 import org.fallt.exception.BadRequestException;
 import org.fallt.mapper.TrainingMapper;
@@ -16,7 +16,6 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -61,7 +60,6 @@ public class TrainingService {
         training.setType(trainingType);
         training.setUser(user);
         if (checkSameTrainingFromDay(user, training, request.getDate())) {
-            System.out.println(MessageFormat.format("Вы уже добавляли данный тип тренировок: {0} в указанную дату", trainingType));
             throw new BadRequestException(MessageFormat.format("Вы уже добавляли данный тип тренировок: {0} в указанную дату", trainingType));
         }
         trainingDao.save(training);
@@ -101,18 +99,22 @@ public class TrainingService {
     /**
      * Редактирование тренировки пользователя
      *
-     * @param userName  Имя пользователя
-     * @param request   Объект с новыми значениями для тренировки, а также со значениями типа и даты редактируемой тренировки для ее поиска в базе данных
+     * @param userName Имя пользователя
+     * @param request  Объект с новыми значениями для тренировки, а также со значениями типа и даты редактируемой тренировки для ее поиска в базе данных
      */
-    public TrainingDto editTraining(String userName, EditTrainingDto request) {
+    public TrainingDto editTraining(String userName, EditTrainingRq request) {
         User user = userService.getUserByName(userName);
         Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), request.getCurrentType(), request.getCurrentDate());
         if (optionalTraining.isEmpty()) {
             throw new BadRequestException("Проверьте введенные данные");
         }
-        //TrainingType trainingType = getTrainingType(request.getCurrentType());
         Training training = optionalTraining.get();
+        TrainingType currentType = getTrainingType(training.getType().getType());
+        training.setType(currentType);
         TrainingMapper.INSTANCE.updateTrainingFromDto(request.getNewValue(), training);
+        TrainingType newType = getTrainingType(training.getType().getType());
+        training.setType(newType);
+        training.setUser(user);
         trainingDao.update(training);
         auditWriter.write(new Audit(user.getName(), "user edit training"));
         return TrainingMapper.INSTANCE.toDtoResponse(training);
@@ -121,12 +123,13 @@ public class TrainingService {
     /**
      * Удаление тренировки
      *
-     * @param user         Пользователь
-     * @param trainingType Тип тренировки
-     * @param date         Дата тренировки
+     * @param userName Имя пользователя
+     * @param request  Объект дто с данными по типу и дате удаляемой тренировки
      */
-    public void deleteTraining(User user, String trainingType, LocalDate date) {
-        Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), trainingType, date);
+    public void deleteTraining(String userName, String type, String date) {
+        User user = userService.getUserByName(userName);
+        LocalDate trainingDate = LocalDate.parse(date);
+        Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), type, trainingDate);
         if (optionalTraining.isPresent()) {
             trainingDao.delete(optionalTraining.get().getId());
             auditWriter.write(new Audit(user.getName(), "user delete training"));
@@ -144,48 +147,6 @@ public class TrainingService {
     private boolean checkSameTrainingFromDay(User user, Training training, LocalDate date) {
         Optional<Training> optionalTraining = trainingDao.findTrainingById(user.getId(), training.getType().getType(), date);
         return optionalTraining.isPresent();
-    }
-
-    /**
-     * Вспомогательный метод сопоставления новых значений и полей экземпляра тренировки
-     *
-     * @param training Тренировка
-     * @param newValue Map с новыми значения полей экземпляра тренировки
-     */
-    private void changeTrainingValue(Training training, Map<String, String> newValue) {
-        for (Map.Entry<String, String> entry : newValue.entrySet()) {
-            switch (entry.getKey()) {
-                case "1" -> {
-                    TrainingType trainingType;
-                    Optional<TrainingType> optionalType = trainingTypeDao.findByType(entry.getValue());
-                    if (optionalType.isEmpty()) {
-                        TrainingType newTrainingType = new TrainingType();
-                        newTrainingType.setType(entry.getValue());
-                        trainingType = addNewTrainingType(newTrainingType);
-                    } else {
-                        trainingType = optionalType.get();
-                    }
-                    training.setType(trainingType);
-                }
-                case "2" ->
-                        training.setDate(LocalDate.parse(entry.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                case "3" -> training.setDuration(Integer.parseInt(entry.getValue()));
-                case "4" -> training.setSpentCalories(Integer.parseInt(entry.getValue()));
-                case "5" -> training.setDescription(entry.getValue());
-                default -> System.out.println("Некорректный параметр");
-            }
-        }
-    }
-
-    private Training createdTraining(TrainingType type, LocalDate date, int duration, int spentCalories, String description, User user) {
-        Training training = new Training();
-        training.setType(type);
-        training.setDate(date);
-        training.setDuration(duration);
-        training.setSpentCalories(spentCalories);
-        training.setDescription(description);
-        training.setUser(user);
-        return training;
     }
 
     private List<Training> setUserToTrainings(List<Training> trainings, User user) {

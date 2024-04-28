@@ -1,6 +1,6 @@
 package org.fallt.service;
 
-import org.fallt.dto.request.EditTrainingDto;
+import org.fallt.dto.request.EditTrainingRq;
 import org.fallt.dto.request.TrainingDto;
 import org.fallt.model.Role;
 import org.fallt.model.Training;
@@ -123,13 +123,14 @@ class TrainingServiceTest {
         Training training = new Training(1L, trainingType, date, 60, 400, "", user);
         when(trainingDao.findTrainingById(1L, "кроссфит", date)).thenReturn(Optional.of(training));
         when(trainingTypeDao.findByType("кроссфит")).thenReturn(Optional.of(trainingType));
+        when(trainingTypeDao.findByType("бег")).thenReturn(Optional.of(new TrainingType(4, "бег")));
         when(userService.getUserByName("John")).thenReturn(user);
         TrainingDto trainingDto = createTrainingRequest(user.getName(), "кроссфит", LocalDate.of(2024, 3, 22), 60, 400, "");
         trainingService.addNewTraining(trainingDto);
-        EditTrainingDto request = new EditTrainingDto();
+        EditTrainingRq request = new EditTrainingRq();
         request.setCurrentType("кроссфит");
         request.setCurrentDate(date);
-        request.setNewValue(new TrainingDto(user.getName(), "бег", LocalDate.of(2024, 02, 15), 120, 350, "Новое описание"));
+        request.setNewValue(new TrainingDto(user.getName(), "бег", LocalDate.of(2024, 2, 15), 120, 350, "Новое описание"));
         trainingService.editTraining(user.getName(), request);
         verify(trainingDao, times(1)).update(training);
     }
@@ -142,7 +143,9 @@ class TrainingServiceTest {
         TrainingType trainingType = new TrainingType(1, "бег");
         Training training = new Training(1L, trainingType, date, 100, 300, "", user);
         when(trainingDao.findTrainingById(1L, "бег", date)).thenReturn(Optional.of(training));
-        trainingService.deleteTraining(user, "бег", date);
+        when(userService.getUserByName("John")).thenReturn(user);
+        String type = "бег";
+        trainingService.deleteTraining(user.getName(), type, "2023-10-20");
         verify(trainingDao, times(1)).delete(isA(Long.class));
     }
 
